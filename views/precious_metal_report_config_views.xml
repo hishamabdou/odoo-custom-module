@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_precious_metal_report_config_form" model="ir.ui.view">
+        <field name="name">precious.metal.report.config.form</field>
+        <field name="model">precious.metal.report.config</field>
+        <field name="arch" type="xml">
+            <form string="Report Default Settings" create="false" delete="false">
+                <header>
+                    <button name="action_run_stock_cron_now"
+                            string="Run Auto-Reserve Now"
+                            type="object"
+                            class="btn-primary"
+                            confirm="This will immediately process ALL waiting records and auto-reserve stock where available. Continue?"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#8B6914;">Report Default Settings</h1>
+                        <p class="text-muted">
+                            Set default values for each report. These are pre-filled every time you open a report wizard — you can still change them before running.
+                        </p>
+                    </div>
+
+                    <notebook>
+
+                        <!-- ── 1. INVENTORY REPORT ── -->
+                        <page string="Inventory Report" name="pm_report">
+                            <group string="Period">
+                                <field name="pm_period_type" widget="radio"/>
+                                <field name="pm_time_from"
+                                       invisible="pm_period_type == 'custom'"
+                                       placeholder="00:00"/>
+                                <field name="pm_time_to"
+                                       invisible="pm_period_type == 'custom'"
+                                       placeholder="23:59"/>
+                                <field name="pm_custom_from"
+                                       invisible="pm_period_type != 'custom'"
+                                       required="pm_period_type == 'custom'"/>
+                                <field name="pm_custom_to"
+                                       invisible="pm_period_type != 'custom'"
+                                       required="pm_period_type == 'custom'"/>
+                            </group>
+                            <group string="Warehouse &amp; Location">
+                                <field name="pm_warehouse_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Warehouses"/>
+                                <field name="pm_location_ids"  widget="many2many_tags"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                            <group string="Filters">
+                                <field name="pm_metal_type" widget="radio"/>
+                                <field name="pm_brand_ids"   widget="many2many_tags"
+                                       placeholder="Leave empty = All Brands"/>
+                                <field name="pm_product_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Products"/>
+                                <field name="pm_only_with_moves" widget="boolean_toggle"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 2. QTY ON HAND ── -->
+                        <page string="Qty On Hand" name="qoh_report">
+                            <group string="Date">
+                                <field name="qoh_as_of_date"
+                                       help="Leave empty to always default to today"/>
+                            </group>
+                            <group string="Filters">
+                                <field name="qoh_metal_type" widget="radio"/>
+                                <field name="qoh_warehouse_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Warehouses"/>
+                                <field name="qoh_location_ids"  widget="many2many_tags"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 3. ADJUSTMENT LOG ── -->
+                        <page string="Adjustment Log" name="adj_report">
+                            <group string="Period">
+                                <field name="adj_period_type" widget="radio"/>
+                                <field name="adj_time_from"
+                                       invisible="adj_period_type == 'custom'"
+                                       placeholder="00:00"/>
+                                <field name="adj_time_to"
+                                       invisible="adj_period_type == 'custom'"
+                                       placeholder="23:59"/>
+                                <field name="adj_custom_from"
+                                       invisible="adj_period_type != 'custom'"
+                                       required="adj_period_type == 'custom'"/>
+                                <field name="adj_custom_to"
+                                       invisible="adj_period_type != 'custom'"
+                                       required="adj_period_type == 'custom'"/>
+                            </group>
+                            <group string="Filters">
+                                <field name="adj_metal_type" widget="radio"/>
+                                <field name="adj_warehouse_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Warehouses"/>
+                                <field name="adj_location_ids"  widget="many2many_tags"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 4. WAITING REPORT ── -->
+                        <page string="⏳ Waiting Report" name="wait_report">
+                            <group string="Filters">
+                                <field name="wait_metal_type" widget="radio"/>
+                                <field name="wait_karat"/>
+                                <field name="wait_group_by"/>
+                                <field name="wait_report_mode" widget="radio"/>
+                                <field name="wait_location_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 5. FREE STOCK ── -->
+                        <page string="🆓 Free Stock" name="fs_report">
+                            <group string="Location">
+                                <field name="fs_location_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                            <group string="Filters">
+                                <field name="fs_metal_type" widget="radio"/>
+                                <field name="fs_brand_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Brands"/>
+                                <field name="fs_hide_zero" widget="boolean_toggle"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 6. PRODUCT LEDGER ── -->
+                        <page string="Product Ledger" name="ledger_report">
+                            <group string="Period">
+                                <field name="ledger_period_type" widget="radio"/>
+                                <field name="ledger_time_from"
+                                       invisible="ledger_period_type == 'custom'"
+                                       placeholder="00:00"/>
+                                <field name="ledger_time_to"
+                                       invisible="ledger_period_type == 'custom'"
+                                       placeholder="23:59"/>
+                                <field name="ledger_custom_from"
+                                       invisible="ledger_period_type != 'custom'"
+                                       required="ledger_period_type == 'custom'"/>
+                                <field name="ledger_custom_to"
+                                       invisible="ledger_period_type != 'custom'"
+                                       required="ledger_period_type == 'custom'"/>
+                            </group>
+                            <group string="Warehouse &amp; Location">
+                                <field name="ledger_warehouse_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Warehouses"/>
+                                <field name="ledger_location_ids"  widget="many2many_tags"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 7. COMPARISON REPORT ── -->
+                        <page string="Comparison" name="cmp_report">
+                            <group string="Filters">
+                                <field name="cmp_metal_type" widget="radio"/>
+                                <field name="cmp_warehouse_ids" widget="many2many_tags"
+                                       placeholder="Leave empty = All Warehouses"/>
+                                <field name="cmp_location_ids"  widget="many2many_tags"
+                                       placeholder="Leave empty = All Locations"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 8. CUSTODY CHAIN REPORT ── -->
+                        <page string="Custody Chain" name="custody_report">
+                            <group string="Default Filters">
+                                <field name="custody_state_filter"/>
+                                <field name="custody_metal_type" widget="radio"/>
+                                <field name="custody_fulfillment"/>
+                            </group>
+                            <group string="Display">
+                                <field name="custody_group_by_1"/>
+                                <field name="custody_group_by_2"/>
+                                <field name="custody_show_journey" widget="boolean_toggle"/>
+                                <field name="custody_max_records"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 10. STOCK TRANSFERS ─────────────────────── -->
+                        <page string="Transfers" name="transfer_cfg">
+                            <group string="Default Locations">
+                                <field name="transfer_src_location_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty = select each time"/>
+                                <field name="transfer_dst_location_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty = all waiting locations"/>
+                            </group>
+                            <group string="Options">
+                                <field name="transfer_validate_immediately" widget="boolean_toggle"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 11. PO DISTRIBUTION ──────────────────────── -->
+                        <page string="PO Distribution" name="po_dist_cfg">
+                            <group string="Default Options">
+                                <field name="po_dist_validate_immediately" widget="boolean_toggle"/>
+                                <field name="po_dist_picking_type_id"
+                                       options="{'no_create': True}"
+                                       placeholder="Leave empty = auto-detect"/>
+                            </group>
+                        </page>
+
+                        <!-- ── 12. LABEL ─────────────────────────────────── -->
+                        <page string="Print Labels" name="label_report">
+                            <group string="Default Filters">
+                                <group>
+                                    <field name="lbl_fulfillment_filter"/>
+                                    <field name="lbl_state_filter"/>
+                                </group>
+                                <group>
+                                    <field name="lbl_include_delivered" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                            <group string="Label Options">
+                                <group>
+                                    <field name="lbl_label_size"/>
+                                    <field name="lbl_copies"/>
+                                </group>
+                                <group>
+                                    <field name="lbl_show_products"   widget="boolean_toggle"/>
+                                    <field name="lbl_show_weight"     widget="boolean_toggle"/>
+                                    <field name="lbl_show_invoice"    widget="boolean_toggle"/>
+                                    <field name="lbl_show_channel"    widget="boolean_toggle"/>
+                                    <field name="lbl_show_amount_due" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                        </page>
+
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Server action to open singleton (always opens the one record) ── -->
+    <record id="action_pm_report_config_open" model="ir.actions.server">
+        <field name="name">Report Settings</field>
+        <field name="model_id" ref="precious_metals_suite.model_precious_metal_report_config"/>
+        <field name="state">code</field>
+        <field name="code">
+config = env['precious.metal.report.config'].get_config()
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Report Settings',
+    'res_model': 'precious.metal.report.config',
+    'view_mode': 'form',
+    'res_id': config.id,
+    'views': [(env.ref('precious_metals_suite.view_precious_metal_report_config_form').id, 'form')],
+    'target': 'current',
+    'context': {'form_view_initial_mode': 'edit'},
+}
+        </field>
+    </record>
+
+</odoo>

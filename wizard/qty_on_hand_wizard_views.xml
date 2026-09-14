@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Wizard Form ─────────────────────────────────────────────── -->
+    <record id="view_qty_on_hand_wizard_form" model="ir.ui.view">
+        <field name="name">qty.on.hand.wizard.form</field>
+        <field name="model">qty.on.hand.wizard</field>
+        <field name="arch" type="xml">
+            <form string="QTY ON HAND Report">
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#8B6914;">QTY ON HAND</h1>
+                        <p style="color:#888; margin:0;">Current stock by brand &amp; product</p>
+                    </div>
+
+                    <group string="Report Date" col="2">
+                        <field name="as_of_date" required="1"/>
+                        <field name="x_metal_type" widget="radio"/>
+                    </group>
+
+                    <group string="Filters" col="2">
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Warehouses"/>
+                        <field name="location_ids"  widget="many2many_tags"
+                               placeholder="Leave empty = All Locations"/>
+                        <field name="brand_ids"     widget="many2many_tags"
+                               placeholder="Leave empty = All Brands"/>
+                        <field name="product_ids"   widget="many2many_tags"
+                               placeholder="Leave empty = All Products"/>
+                    </group>
+
+                    <group col="2">
+                        <field name="hide_zero" widget="boolean_toggle"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_show_report" string="Show Report"
+                            type="object"
+                            class="btn-info"/>
+                    <button name="action_save_pdf" string="Save as PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel"
+                            string="Export Excel"
+                            type="object"
+                            class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ── Window Action ───────────────────────────────────────────── -->
+    <record id="action_qty_on_hand_wizard" model="ir.actions.act_window">
+        <field name="name">QTY ON HAND</field>
+        <field name="res_model">qty.on.hand.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_qty_on_hand_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

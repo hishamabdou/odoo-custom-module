@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ══════════════════════════════════════════════════════════════════
+         PRECIOUS METALS SUITE — Menus
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         ROOT 1 — Precious Metals  (operations)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <menuitem id="menu_precious_metals_root"
+              name="Precious Metals"
+              parent="stock.menu_stock_root"
+              groups="precious_metals_suite.group_user"
+              sequence="50"/>
+
+    <!-- Products & Brands -->
+    <menuitem id="menu_precious_metals_products"
+              name="Products"
+              parent="stock.menu_warehouse_config"
+              action="action_precious_metals_products"
+              groups="precious_metals_suite.group_user"
+              sequence="23"/>
+
+    <menuitem id="menu_precious_metals_brands"
+              name="Brands"
+              parent="stock.menu_warehouse_config"
+              action="action_precious_metal_brand"
+              groups="precious_metals_suite.group_user"
+              sequence="24"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         ROOT 2 — Metal Reporting  (all reports + settings)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <menuitem id="menu_metal_reporting_root"
+              name="Metal Reporting"
+              parent="stock.menu_stock_root"
+              groups="precious_metals_suite.group_user"
+              sequence="51"/>
+
+    <!-- Settings — manager only, top of list -->
+    <menuitem id="menu_precious_metal_report_config"
+              name="Report Settings"
+              parent="stock.menu_warehouse_config"
+              action="precious_metals_suite.action_pm_report_config_open"
+              sequence="26"
+              groups="precious_metals_suite.group_manager"/>
+
+    <menuitem id="menu_reports_sep_1"
+              name="── Inventory ──"
+              parent="menu_metal_reporting_root"
+              groups="precious_metals_suite.group_user"
+              sequence="9"/>
+
+    <menuitem id="menu_precious_metals_report"
+              name="Inventory Report"
+              parent="stock.menu_warehouse_report"
+              action="action_precious_metal_report_wizard"
+              groups="precious_metals_suite.group_user"
+              sequence="10"/>
+
+    <menuitem id="menu_qty_on_hand"
+              name="Qty On Hand"
+              parent="stock.menu_warehouse_report"
+              action="action_qty_on_hand_wizard"
+              groups="precious_metals_suite.group_user"
+              sequence="15"/>
+
+    <menuitem id="menu_reports_sep_2"
+              name="── Movements &amp; Ledger ──"
+              parent="stock.menu_warehouse_report"
+              groups="precious_metals_suite.group_user"
+              sequence="44"/>
+
+    <menuitem id="menu_product_ledger"
+              name="Product Ledger"
+              parent="stock.menu_warehouse_report"
+              action="action_product_ledger_wizard"
+              groups="precious_metals_suite.group_user"
+              sequence="45"/>
+
+    <menuitem id="menu_adjustment_log"
+              name="Adjustment Log"
+              parent="stock.menu_warehouse_report"
+              action="action_adjustment_log_wizard"
+              groups="precious_metals_suite.group_user"
+              sequence="50"/>
+
+    <menuitem id="menu_comparison"
+              name="Period Comparison"
+              parent="stock.menu_warehouse_report"
+              action="action_comparison_wizard"
+              groups="precious_metals_suite.group_user"
+              sequence="55"/>
+
+
+</odoo>

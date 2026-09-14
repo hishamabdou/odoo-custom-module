@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── 1. stock.picking list — Done W21 / Demand W21 / Reserved W21 ── -->
+    <record id="pm_stock_picking_list_w21" model="ir.ui.view">
+        <field name="name">pm.stock.picking.list.w21</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="metal_demand_w21"
+                       string="Demand W21"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Demand W21"/>
+                <field name="metal_reserved_w21"
+                       string="Reserved W21"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Reserved W21"/>
+                <field name="metal_done_w21"
+                       string="Done W21"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Done W21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 2. stock.picking form — Reserve/Unreserve/Lock/Unlock buttons ── -->
+    <!--
+        Lock/Unlock logic (independent of state):
+          Lock   button: visible when is_locked=False AND state != cancel
+          Unlock button: visible when is_locked=True  (any state including done)
+        When state=done + unlocked → Details tab is editable; state stays done.
+    -->
+    <record id="pm_stock_picking_form_buttons" model="ir.ui.view">
+        <field name="name">pm.stock.picking.form.buttons</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_validate']" position="before">
+                <!-- Reserve: hidden once fully reserved (state=assigned), or when done/cancel -->
+                <button name="action_assign"
+                        string="Reserve"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state in ('assigned','done','cancel')"/>
+                <!-- Unreserve: visible ONLY when fully reserved (state=assigned) -->
+                <button name="do_unreserve"
+                        string="Unreserve"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state != 'assigned'"/>
+                <!-- Lock: show when NOT locked and not cancelled -->
+                <button name="action_lock"
+                        string="Lock"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="is_locked or state == 'cancel'"/>
+                <!-- Unlock: show ONLY when locked (including state=done) -->
+                <!-- Managers/Admins only — wizard enforces permission + reason -->
+                <button name="action_reset_to_draft"
+                        string="Unlock"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="not is_locked"
+                        groups="precious_metals_suite.group_manager"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 3. stock.picking form — Details tab with Reserved + Done cols ── -->
+    <!--
+        Editability controlled by is_locked:
+          is_locked=True  → entire list readonly (default after validate)
+          is_locked=False → list editable: product, locations, qty, done qty all writable
+        Computed W21 fields stay readonly always (auto-calculated).
+    -->
+    <record id="pm_stock_picking_form_details_tab" model="ir.ui.view">
+        <field name="name">pm.stock.picking.form.details.tab</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='operations']" position="before">
+                <page string="Details" name="pm_details">
+                    <!-- readonly when locked OR cancelled -->
+                    <!--
+                        Done Qty column maps to stock.move 'quantity' field via inverse.
+                        product_id / location_id / location_dest_id / product_uom_qty
+                        and Done Qty are all editable when unlocked.
+                        W21 columns are always readonly (computed from qty × weight_21).
+                    -->
+                    <field name="move_ids"
+                           readonly="is_locked or state == 'cancel'"
+                           options="{'no_create': True, 'no_delete': True}">
+                        <list string="Move Details"
+                              editable="bottom"
+                              decoration-success="state == 'assigned'"
+                              decoration-warning="state == 'partially_available'"
+                              decoration-danger="state == 'confirmed'"
+                              decoration-muted="state == 'cancel'">
+                            <field name="product_id"             string="Product"       readonly="0"/>
+                            <field name="location_id"            string="From"          readonly="0"/>
+                            <field name="location_dest_id"       string="To"            readonly="0"/>
+                            <field name="product_uom_qty"          string="Demand Qty"    readonly="0" sum="Total" digits="[16,0]"/>
+                            <field name="metal_demand_w21"         string="Demand W21"    readonly="1" sum="Total" digits="[16,4]"/>
+                            <field name="quantity"                 string="Reserved Qty"  readonly="1" sum="Total" digits="[16,0]"/>
+                            <field name="metal_reserved_w21"       string="Reserved W21"  readonly="1" sum="Total" digits="[16,4]"/>
+                            <field name="metal_done_qty_display"   string="Done Qty"      readonly="1" sum="Total" digits="[16,0]"/>
+                            <field name="metal_done_w21"           string="Done W21"      readonly="1" sum="Total" digits="[16,4]"/>
+                            <field name="state"                  string="Status"        readonly="1"
+                                   widget="badge"
+                                   decoration-success="state == 'done'"
+                                   decoration-warning="state == 'assigned'"
+                                   decoration-info="state == 'confirmed'"
+                                   decoration-danger="state == 'cancel'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 4. stock.picking form — W21 fields in Additional Info tab ────── -->
+    <record id="pm_stock_picking_form_w21_fields" model="ir.ui.view">
+        <field name="name">pm.stock.picking.form.w21.fields</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='extra']" position="inside">
+                <group string="Weight (W21 Grams)" name="w21_weight_info">
+                    <field name="metal_demand_w21"   string="Demand W21 (g)"   readonly="1" widget="float" digits="[16, 3]"/>
+                    <field name="metal_reserved_w21" string="Reserved W21 (g)" readonly="1" widget="float" digits="[16, 3]"/>
+                    <field name="metal_done_w21"     string="Done W21 (g)"     readonly="1" widget="float" digits="[16, 3]"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 5. stock.picking form — W21 fields in header after origin ─────── -->
+    <record id="pm_stock_picking_form_w21_header" model="ir.ui.view">
+        <field name="name">pm.stock.picking.form.w21.header</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="metal_demand_w21"   string="Demand W21 (g)"   readonly="1" widget="float" digits="[16, 3]"/>
+                <field name="metal_reserved_w21" string="Reserved W21 (g)" readonly="1" widget="float" digits="[16, 3]"/>
+                <field name="metal_done_w21"     string="Done W21 (g)"     readonly="1" widget="float" digits="[16, 3]"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 6. stock.move.line list (inside stock.move form) ──────────────── -->
+    <record id="pm_stock_move_line_tree_w21" model="ir.ui.view">
+        <field name="name">pm.stock.move.line.tree.w21</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="weight_21"
+                       string="Weight 21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ W21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 7. stock.move.line operations list (Operations tab in picking) ── -->
+    <record id="pm_stock_move_line_operations_w21" model="ir.ui.view">
+        <field name="name">pm.stock.move.line.operations.w21</field>
+        <field name="model">stock.move.line</field>
+        <field name="inherit_id" ref="stock.view_move_line_tree_detailed"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="weight_21"
+                       string="Weight 21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ W21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 8. stock.move standalone list (Inventory > Moves) ─────────────── -->
+    <record id="pm_stock_move_list_w21" model="ir.ui.view">
+        <field name="name">pm.stock.move.list.w21</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="move_demand_w21"
+                       string="Demand W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Demand W21"/>
+                <field name="metal_reserved_w21"
+                       string="Reserved W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Reserved W21"/>
+                <field name="move_done_w21"
+                       string="Done W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Done W21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- ── 9. stock.move list inside picking form (Operations tab) ─────── -->
+    <record id="pm_stock_picking_move_list_w21" model="ir.ui.view">
+        <field name="name">pm.stock.picking.move.list.w21</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_picking_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="move_demand_w21"
+                       string="Demand W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Demand W21"/>
+                <field name="metal_reserved_w21"
+                       string="Reserved W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Reserved W21"/>
+                <field name="move_done_w21"
+                       string="Done W21 (g)"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="Σ Done W21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>

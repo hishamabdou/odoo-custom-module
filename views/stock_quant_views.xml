@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Extend stock.quant.list.editable to show precious-metal weight columns.
+        Fields are defined in StockQuant (stock_picking_extension.py):
+          • x_metal_type          — related to product_id.x_metal_type
+          • weight_21_unit        — related to product_id.weight_21 (per unit)
+          • total_weight_21_quant — computed: quantity × weight_21_unit
+    -->
+    <record id="stock_quant_list_pm_weight" model="ir.ui.view">
+        <field name="name">stock.quant.list.pm.weight</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+        <field name="arch" type="xml">
+            <!-- Insert after the quantity column -->
+            <!-- Insert after product_id — guaranteed present in all Odoo versions -->
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="x_metal_type"
+                       string="Metal"
+                       optional="show"
+                       readonly="1"
+                       width="70px"/>
+                <field name="weight_21_unit"
+                       string="Weight/Unit"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 4]}"
+                       sum="Σ Weight/Unit"/>
+                <field name="total_weight_21_quant"
+                       string="Total Weight 21"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 4]}"
+                       sum="Σ Total Weight 21"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

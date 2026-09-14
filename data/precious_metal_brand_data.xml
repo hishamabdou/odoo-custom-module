@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="brand_gold_standard" model="precious.metal.brand">
+            <field name="name">Gold Standard</field>
+        </record>
+        <record id="brand_silver_line" model="precious.metal.brand">
+            <field name="name">Silver Line</field>
+        </record>
+    </data>
+</odoo>

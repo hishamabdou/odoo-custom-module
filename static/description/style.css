@@ -1,0 +1,6 @@
+/* Inventory Waiting Report Styles */
+.o_inventory_waiting_badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             PRECIOUS METALS — Security Groups
+             ══════════════════════════════════════════════════════════════════
+
+             3 مستويات صلاحيات:
+
+             1. precious_metals.group_user   (مستخدم)
+                → يشوف التقارير والبيانات فقط — لا يعدل ولا يحذف
+
+             2. precious_metals.group_manager  (مدير)
+                → يشوف + يعدل + ينشئ — لا يحذف الأقسام ولا الإعدادات الأساسية
+                → يشمل صلاحيات المستخدم تلقائياً (implied_ids)
+
+             3. precious_metals.group_admin  (مسؤول)
+                → صلاحيات كاملة بما فيها الحذف وإعداد الأقسام والأسعار
+                → يشمل صلاحيات المدير تلقائياً (implied_ids)
+
+             ملاحظة: كل الـ Wizards والتقارير الآن مقيدة على group_user
+             بدلاً من base.group_user — يعني مش أي موظف يشوف
+             تقارير الذهب والأوزان والأسعار.
+        ══════════════════════════════════════════════════════════════════ -->
+
+        <record id="privilege_precious_metals" model="res.groups.privilege">
+            <field name="name">Precious Metals</field>
+            <field name="category_id" ref="base.module_category_inventory_inventory"/>
+            <field name="sequence">90</field>
+        </record>
+
+        <!-- Group 1: User (Read-only on reports and data) -->
+        <record id="group_user" model="res.groups">
+            <field name="name">Precious Metals / User</field>
+            <field name="privilege_id" ref="privilege_precious_metals"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Group 2: Manager (Read + Write + Create) -->
+        <record id="group_manager" model="res.groups">
+            <field name="name">Precious Metals / Manager</field>
+            <field name="privilege_id" ref="privilege_precious_metals"/>
+            <field name="implied_ids" eval="[(4, ref('group_user')), (4, ref('stock.group_stock_manager'))]"/>
+        </record>
+
+        <!-- ══════════════════════════════════════════════════════════════════
+             Group 4 (defined before Admin so it can be added to Admin's
+             implied_ids below): Edit Price 21 After Confirm/Post
+             ══════════════════════════════════════════════════════════════════
+             Odoo 19 dropped res.groups.category_id — a group's UI placement
+             (exclusive radio level vs. standalone "Extra Rights" checkbox)
+             is now driven entirely by privilege_id. Groups that SHARE a
+             privilege_id render as one mutually-exclusive radio (that's why
+             User/Manager/Admin above all share privilege_precious_metals).
+             Giving this group its OWN dedicated privilege (a single group
+             under that privilege) makes it render as an independent
+             checkbox instead, so it can be toggled on top of any hierarchy
+             level.
+
+             Without it, x_price_21 becomes read-only once a Sale Order is
+             confirmed, a Purchase Order is confirmed, or an Invoice/Bill is
+             posted. Every edit to x_price_21 — allowed or not — is always
+             logged on the document's chatter (field tracking), independent
+             of this permission.
+        ══════════════════════════════════════════════════════════════════ -->
+        <record id="privilege_price21_edit_locked" model="res.groups.privilege">
+            <field name="name">Edit Price 21 After Confirm/Post</field>
+            <field name="category_id" ref="base.module_category_inventory_inventory"/>
+            <field name="sequence">91</field>
+        </record>
+
+        <record id="group_price21_edit_locked" model="res.groups">
+            <field name="name">Precious Metals / Edit Price 21 After Confirm/Post</field>
+            <field name="privilege_id" ref="privilege_price21_edit_locked"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Group 3: Admin (Full access including delete and configuration) -->
+        <record id="group_admin" model="res.groups">
+            <field name="name">Precious Metals / Administrator</field>
+            <field name="privilege_id" ref="privilege_precious_metals"/>
+            <field name="implied_ids" eval="[(4, ref('group_manager')), (4, ref('base.group_system')), (4, ref('group_price21_edit_locked'))]"/>
+        </record>
+
+    </data>
+</odoo>

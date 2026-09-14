@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- PDF Report Action -->
+    <record id="action_report_qty_on_hand" model="ir.actions.report">
+        <field name="name">QTY ON HAND &#x2014; Precious Metals</field>
+        <field name="model">qty.on.hand.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">precious_metals_suite.report_qty_on_hand_template</field>
+        <field name="report_file">precious_metals_suite.report_qty_on_hand_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <!-- PDF: Save as PDF -->
+    <record id="action_report_qty_on_hand_pdf" model="ir.actions.report">
+        <field name="name">Qty On Hand (PDF)</field>
+        <field name="model">qty.on.hand.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">precious_metals_suite.report_qty_on_hand_template</field>
+        <field name="report_file">precious_metals_suite.report_qty_on_hand_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="print_report_name">object._get_export_filename('QtyOnHand', 'pdf')</field>
+    </record>
+
+    <!-- QWeb Template -->
+    <template id="report_qty_on_hand_template">
+        <t t-call="web.html_container">
+        <meta charset="UTF-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+            /* ── Arabic + Unicode font support for PDF (wkhtmltopdf) ── */
+            body, * { font-family: "DejaVu Sans", "Noto Sans Arabic", Arial, sans-serif !important; }
+            .arabic, [dir="rtl"], .customer-name {
+                direction: rtl;
+                unicode-bidi: embed;
+                text-align: right;
+                font-family: "DejaVu Sans", "Noto Naskh Arabic", Arial, sans-serif !important;
+            }
+        </style>
+        <style>
+            body { font-family: DejaVu Sans, Noto Sans Arabic, Arial, sans-serif; }
+            .rtl, [dir="rtl"] { direction: rtl; text-align: right; font-family: "DejaVu Sans", "Noto Naskh Arabic", Arial, sans-serif; }
+            @media print {
+                .o_action_manager, .o_main_navbar, .o_control_panel,
+                .breadcrumb, .o_cp_buttons, .btn, button,
+                .o_report_no_print { display: none !important; }
+            @page { margin: 0; size: A4; }
+            html, body { margin: 0 !important; padding: 0 !important; }
+            .page { padding: 0.4cm 0.6cm 0.5cm 0.6cm !important; margin: 0 !important; }
+            .row { margin-left: 0 !important; margin-right: 0 !important; }
+            .mb-2 { margin-bottom: 4px !important; }
+            .mt-2 { margin-top: 4px !important; }
+                table { page-break-inside: auto; }
+                tr    { page-break-inside: avoid; page-break-after: auto; }
+                thead { display: table-header-group; }
+                tfoot { display: table-footer-group; }
+            }
+        </style>
+
+            <t t-set="d"          t-value="report_records[0]"/>
+            <t t-set="warehouses" t-value="d.get('warehouses', [])"/>
+            <t t-set="as_of"      t-value="d.get('as_of_date', '')"/>
+            <t t-set="metal"      t-value="(d.get('x_metal_type') or 'all').upper()"/>
+
+                
+            <div class="page" style="font-size:9px; font-family:DejaVu Sans,Noto Sans Arabic,Arial,sans-serif;">
+
+                    <!-- ── Report Header with logo ── -->
+                    <table style="width:100%; border-bottom:2px solid #8B6914;
+                                  margin-bottom:6px; padding-bottom:4px; border-collapse:collapse;">
+                        <tr>
+                            <td style="width:80px; vertical-align:middle; padding:0 10px 0 0;">
+                                <t t-if="company_logo">
+                                    <img t-att-src="'data:image/png;base64,' + company_logo"
+                                         style="max-height:45px; max-width:75px;
+                                                object-fit:contain; display:block;"/>
+                                </t>
+                            </td>
+                            <td style="vertical-align:middle;">
+                                <div style="font-size:14px; font-weight:bold; color:#8B6914; letter-spacing:1px;">
+                                    QTY ON HAND &#x2014; Precious Metals
+                                </div>
+                                <div style="color:#555; font-size:8.5px; margin-top:2px;">
+                                    As of: <strong><t t-esc="as_of"/></strong>
+                                    &#160;|&#160; Metal: <strong><t t-esc="metal"/></strong>
+                                    <t t-if="company_name">&#160;|&#160; <t t-esc="company_name"/></t>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <t t-if="not warehouses">
+                        <p style="color:red; text-align:center;">No data found for selected filters.</p>
+                    </t>
+
+                    <t t-foreach="warehouses" t-as="wh">
+                        <t t-foreach="wh.get('sections', [])" t-as="section">
+                            <t t-if="section.get('brands')">
+
+                                <!-- ── Location header ──────────────── -->
+                                <div style="background:#8B6914; color:white; padding:4px 10px;
+                                            font-size:9px; font-weight:bold; margin-bottom:0;">
+                                    Warehouse: <t t-esc="wh['warehouse_name']"/>
+                                    &#160;|&#160;
+                                    Location: <t t-esc="section['location_name']"/>
+                                </div>
+
+                                <table style="width:100%; border-collapse:collapse; font-size:8.5px; margin-bottom:16px;">
+
+                                    <!-- ── Table header ─────────────── -->
+                                    <thead>
+                                        <tr style="background:#a07830; color:white; text-align:center;">
+                                            <th style="padding:4px 6px; border:1px solid #aaa; text-align:left; width:30%;">Brand / Product</th>
+                                            <th style="padding:4px 6px; border:1px solid #aaa; width:10%;">Type</th>
+                                            <th style="padding:4px 6px; border:1px solid #aaa; width:10%;">Karat</th>
+                                            <th style="padding:4px 6px; border:1px solid #aaa; width:25%; background:#7a5a10;">Closing QTY</th>
+                                            <th style="padding:4px 6px; border:1px solid #aaa; width:25%; background:#7a5a10;">Closing W21</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <t t-foreach="section['brands'].items()" t-as="brand_item">
+                                            <t t-set="brand_name" t-value="brand_item[0]"/>
+                                            <t t-set="brand_data" t-value="brand_item[1]"/>
+
+                                            <!-- Brand header row -->
+                                            <tr style="background:#f5e6c8;">
+                                                <td colspan="5" style="padding:5px 8px; border:1px solid #bbb;
+                                                                        font-weight:bold; font-size:9.5px;
+                                                                        color:#8B6914; letter-spacing:0.5px;">
+                                                    &#x25B6;&#160;<t t-esc="brand_name"/>
+                                                </td>
+                                            </tr>
+
+                                            <!-- Product rows for this brand -->
+                                            <t t-foreach="brand_data['rows']" t-as="row">
+                                                <tr style="text-align:center; background: '#ffffff';">
+                                                    <td style="padding:3px 6px; border:1px solid #e0e0e0;
+                                                                text-align:left; padding-left:20px;">
+                                                        <t t-esc="row['product']"/>
+                                                    </td>
+                                                    <td style="padding:3px 6px; border:1px solid #e0e0e0;">
+                                                        <t t-esc="row['x_metal_type']"/>
+                                                    </td>
+                                                    <td style="padding:3px 6px; border:1px solid #e0e0e0;">
+                                                        <t t-esc="row['karat_display']"/>
+                                                    </td>
+                                                    <td style="padding:3px 6px; border:1px solid #e0e0e0;
+                                                                background:#fffde7; font-weight:bold;">
+                                                        <t t-esc="int(row['closing_qty'])"/>
+                                                    </td>
+                                                    <td style="padding:3px 6px; border:1px solid #e0e0e0;
+                                                                background:#fffde7; font-weight:bold;">
+                                                        <t t-esc="'%.3f' % row['closing_w21']"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+                                            <!-- Brand subtotal row -->
+                                            <tr style="background:#fff3e0; font-weight:bold; text-align:center;">
+                                                <td colspan="3" style="padding:3px 8px; border:1px solid #bbb;
+                                                                        text-align:right; font-size:8px;
+                                                                        color:#6a4a00;">
+                                                    Total &#x2014; <t t-esc="brand_name"/>
+                                                </td>
+                                                <td style="padding:3px 6px; border:1px solid #bbb;
+                                                            background:#ffe082; font-size:9px;">
+                                                    <t t-esc="int(brand_data['total_qty'])"/>
+                                                </td>
+                                                <td style="padding:3px 6px; border:1px solid #bbb;
+                                                            background:#ffe082; font-size:9px;">
+                                                    <t t-esc="'%.3f' % brand_data['total_w21']"/>
+                                                </td>
+                                            </tr>
+
+                                        </t>
+                                    </tbody>
+
+                                    <!-- Grand Total -->
+                                    <tfoot>
+                                        <tr style="background:#8B6914; color:white; font-weight:bold;
+                                                   text-align:center; font-size:10px;">
+                                            <td colspan="3" style="padding:5px 8px; border:1px solid #6a4a00;
+                                                                    text-align:left; letter-spacing:1px;">
+                                                GRAND TOTAL
+                                            </td>
+                                            <td style="padding:5px 6px; border:1px solid #6a4a00;">
+                                                <t t-esc="int(section['grand_qty'])"/>
+                                            </td>
+                                            <td style="padding:5px 6px; border:1px solid #6a4a00;">
+                                                <t t-esc="'%.3f' % section['grand_w21']"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+
+                                </table>
+
+                            </t>
+                        </t>
+                    </t>
+
+                    <!-- [5] Footer -->
+                    <p style="font-size:6.5px; color:#aaa; margin-top:8px; text-align:right; border-top:1px solid #eee; padding-top:4px;">
+                        QTY ON HAND &#160;|&#160; As of: <t t-esc="as_of"/>
+                        &#160;|&#160; Printed: <t t-esc="d.get('printed_at', '')"/>
+                    </p>
+                </div>
+        </t>
+    </template>
+
+</odoo>

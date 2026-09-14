@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="pm_sale_order_list" model="ir.ui.view">
+        <field name="name">pm.sale.order.list</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="x_metal_type" string="Metal Type" optional="show" readonly="1"/>
+                <field name="x_price_21" string="Price 21" optional="show"
+                       widget="float" options="{'digits': [16, 2]}"
+                       readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight 21" optional="show" readonly="1"
+                       widget="float" options="{'digits': [16, 3]}"
+                       sum="&#x03A3; Weight 21"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

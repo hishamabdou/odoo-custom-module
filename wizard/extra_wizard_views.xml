@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════════════════
+         [1] MOVEMENT REPORT — updated with datetime fields
+         ══════════════════════════════════════════════════════ -->
+    <record id="view_precious_metal_report_wizard_form" model="ir.ui.view">
+        <field name="name">precious.metal.report.wizard.form</field>
+        <field name="model">precious.metal.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Precious Metals Inventory Report">
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#8B6914;">Precious Metals Report</h1>
+                    </div>
+                    <group string="Report Period" col="2">
+                        <field name="datetime_from" required="1"/>
+                        <field name="datetime_to"   required="1"/>
+                    </group>
+                    <group string="Metal and Warehouse" col="2">
+                        <field name="x_metal_type" widget="radio"/>
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Warehouses"/>
+                    </group>
+                    <group string="Filters" col="2">
+                        <field name="location_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Locations"/>
+                        <field name="brand_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Brands"/>
+                        <field name="product_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Products"/>
+                        <field name="only_with_moves" widget="boolean_toggle"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_show_report" string="Show Report"    type="object" class="btn-info"/>
+                    <button name="action_save_pdf" string="Save as PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         [2] PRODUCT LEDGER
+         ══════════════════════════════════════════════════════ -->
+    <record id="view_product_ledger_wizard_form" model="ir.ui.view">
+        <field name="name">product.ledger.wizard.form</field>
+        <field name="model">product.ledger.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Product Ledger">
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#8B6914;">Product Ledger</h1>
+                        <p style="color:#888; margin:0;">Detailed movement history for a single product</p>
+                    </div>
+                    <group string="Product" col="2">
+                        <field name="product_id" required="1"/>
+                    </group>
+                    <group string="Period" col="2">
+                        <field name="datetime_from" required="1"/>
+                        <field name="datetime_to"   required="1"/>
+                    </group>
+                    <group string="Scope" col="2">
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All Warehouses"/>
+                        <field name="location_ids"  widget="many2many_tags"
+                               placeholder="Leave empty = All Locations"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_show_report" string="Show Report"    type="object" class="btn-info"/>
+                    <button name="action_save_pdf" string="Save as PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_product_ledger_wizard" model="ir.actions.act_window">
+        <field name="name">Product Ledger</field>
+        <field name="res_model">product.ledger.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_product_ledger_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Smart button on the product form — opens Product Ledger pre-filled
+         with this product, so the user doesn't have to pick it from the
+         wizard's dropdown manually. -->
+    <record id="view_product_template_ledger_button" model="ir.ui.view">
+        <field name="name">product.template.ledger.smart.button</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="action"
+                        name="%(action_product_ledger_wizard)d"
+                        class="oe_stat_button"
+                        icon="fa-list-alt"
+                        context="{'default_product_id': id}"
+                        invisible="not x_metal_type">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Product Ledger</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         [3] ADJUSTMENT LOG
+         ══════════════════════════════════════════════════════ -->
+    <record id="view_adjustment_log_wizard_form" model="ir.ui.view">
+        <field name="name">adjustment.log.wizard.form</field>
+        <field name="model">adjustment.log.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Adjustment Log">
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#C62828;">Inventory Adjustment Log</h1>
+                        <p style="color:#888; margin:0;">Manual quantity updates — who changed what and when</p>
+                    </div>
+                    <group string="Period" col="2">
+                        <field name="datetime_from" required="1"/>
+                        <field name="datetime_to"   required="1"/>
+                    </group>
+                    <group string="Filters" col="2">
+                        <field name="x_metal_type" widget="radio"/>
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                        <field name="location_ids"  widget="many2many_tags"
+                               placeholder="Leave empty = All Locations"/>
+                        <field name="brand_ids"     widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                        <field name="product_ids"   widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_show_report" string="Show Report"    type="object" class="btn-info"/>
+                    <button name="action_save_pdf" string="Save as PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_adjustment_log_wizard" model="ir.actions.act_window">
+        <field name="name">Adjustment Log</field>
+        <field name="res_model">adjustment.log.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_adjustment_log_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ══════════════════════════════════════════════════════
+         [6] COMPARISON REPORT
+         ══════════════════════════════════════════════════════ -->
+    <record id="view_comparison_wizard_form" model="ir.ui.view">
+        <field name="name">comparison.report.wizard.form</field>
+        <field name="model">comparison.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Period Comparison">
+                <sheet>
+                    <div class="oe_title">
+                        <h1 style="color:#1565C0;">Period Comparison Report</h1>
+                        <p style="color:#888; margin:0;">Compare closing stock and movements between two periods</p>
+                    </div>
+                    <group string="Period A" col="3">
+                        <field name="period_a_label" placeholder="e.g. Jan-Jun 2025"/>
+                        <field name="period_a_from"  required="1"/>
+                        <field name="period_a_to"    required="1"/>
+                    </group>
+                    <group string="Period B" col="3">
+                        <field name="period_b_label" placeholder="e.g. Jul-Dec 2025"/>
+                        <field name="period_b_from"  required="1"/>
+                        <field name="period_b_to"    required="1"/>
+                    </group>
+                    <group string="Filters" col="2">
+                        <field name="x_metal_type" widget="radio"/>
+                        <field name="warehouse_ids" widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                        <field name="location_ids"  widget="many2many_tags"
+                               placeholder="Leave empty = All Locations"/>
+                        <field name="brand_ids"     widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                        <field name="product_ids"   widget="many2many_tags"
+                               placeholder="Leave empty = All"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_show_report" string="Show Report"    type="object" class="btn-info"/>
+                    <button name="action_save_pdf" string="Save as PDF" type="object" class="btn-primary"/>
+                    <button name="action_export_excel" string="Export Excel" type="object" class="btn-success"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_comparison_wizard" model="ir.actions.act_window">
+        <field name="name">Period Comparison</field>
+        <field name="res_model">comparison.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_comparison_wizard_form"/>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

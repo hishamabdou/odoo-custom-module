@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_precious_metal" model="ir.actions.report">
+        <field name="name">Precious Metals Inventory Report</field>
+        <field name="model">precious.metal.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">precious_metals_suite.report_precious_metal_template</field>
+        <field name="report_file">precious_metals_suite.report_precious_metal_template</field>
+    </record>
+    <!-- PDF: Save as PDF -->
+    <record id="action_report_precious_metal_pdf" model="ir.actions.report">
+        <field name="name">Precious Metal (PDF)</field>
+        <field name="model">precious.metal.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">precious_metals_suite.report_precious_metal_template</field>
+        <field name="report_file">precious_metals_suite.report_precious_metal_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="print_report_name">object._get_export_filename('PreciousMetals', 'pdf')</field>
+    </record>
+
+    <template id="report_precious_metal_template">
+        <t t-call="web.html_container">
+        <meta charset="UTF-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+            /* ── Arabic + Unicode font support for PDF (wkhtmltopdf) ── */
+            body, * { font-family: "DejaVu Sans", "Noto Sans Arabic", Arial, sans-serif !important; }
+            .arabic, [dir="rtl"], .customer-name {
+                direction: rtl;
+                unicode-bidi: embed;
+                text-align: right;
+                font-family: "DejaVu Sans", "Noto Naskh Arabic", Arial, sans-serif !important;
+            }
+        </style>
+        <style>
+            body { font-family: "DejaVu Sans", "Noto Sans Arabic", Arial, sans-serif; font-size: 7px; }
+            /* Arabic RTL support */
+            .rtl, [dir="rtl"] { direction: rtl; text-align: right; font-family: "DejaVu Sans", "Noto Naskh Arabic", Arial, sans-serif; }
+            /* Safe emoji fallback: use DejaVu which ships with wkhtmltopdf */
+            .pm-title    { color:#8B6914; border-bottom:2px solid #8B6914; padding-bottom:4px; margin:0 0 4px 0; font-size:13px; text-align:center; }
+            .pm-subtitle { color:#555; margin:0 0 8px 0; font-size:8px; text-align:center; }
+            .pm-section  { margin-bottom:14px; }
+            .pm-loc-header { background:#8B6914; color:white; padding:3px 8px; font-size:8px; font-weight:bold; }
+            table.pm { width:100%; border-collapse:collapse; font-size:6.5px; }
+            table.pm th, table.pm td { border:1px solid #ccc; padding:2px 3px; text-align:center; }
+            table.pm thead tr:first-child th { background:#8B6914; color:white; }
+            table.pm thead tr:last-child  th { background:#a07830; color:white; }
+            td.col-product { text-align:left !important; white-space:nowrap; }
+            td.c-green   { background:#e8f5e9; font-weight:bold; }
+            td.c-red     { background:#fce4ec; font-weight:bold; }
+            td.c-orange  { background:#fff3e0; font-weight:bold; }
+            td.c-adj-in  { background:#f0fff0; }
+            td.c-adj-out { background:#fff0f0; }
+            tr.pm-total td           { background:#f5e6c8; font-weight:bold; }
+            tr.pm-total td.c-green   { background:#c8e6c9; }
+            tr.pm-total td.c-adj-in  { background:#d4f0d4; }
+            tr.pm-total td.c-red     { background:#f8bbd0; }
+            tr.pm-total td.c-adj-out { background:#f0d4d4; }
+            tr.pm-total td.c-orange  { background:#ffe0b2; }
+            .pm-formula { font-size:6px; color:#999; margin:2px 0 0 0; }
+            .pm-footer  { font-size:6.5px; color:#aaa; margin-top:10px; text-align:right; border-top:1px solid #eee; padding-top:4px; }
+            @media print {
+                .o_action_manager,.o_main_navbar,.o_control_panel,
+                .breadcrumb,.o_cp_buttons,.btn,button,
+                .o_report_no_print { display:none !important; }
+            @page { margin: 0; size: A4 landscape; }
+            html, body { margin: 0 !important; padding: 0 !important; }
+            .page { padding: 0.4cm 0.6cm 0.5cm 0.6cm !important; margin: 0 !important; }
+            .row { margin-left: 0 !important; margin-right: 0 !important; }
+            .mb-2 { margin-bottom: 4px !important; }
+            .mt-2 { margin-top: 4px !important; }
+                table { page-break-inside:auto; }
+                tr    { page-break-inside:avoid; page-break-after:auto; }
+                thead { display:table-header-group; }
+                tfoot { display:table-footer-group; }
+            }
+        </style>
+
+        <t t-set="d"          t-value="report_records[0]"/>
+        <t t-set="warehouses" t-value="d.get('warehouses', [])"/>
+
+        
+            <div class="page" style="font-size:7px;">
+
+                <!-- ── Logo header ── -->
+                <table style="width:100%; border-bottom:2px solid #8B6914;
+                              margin-bottom:4px; padding-bottom:3px; border-collapse:collapse;">
+                    <tr>
+                        <td style="width:80px; vertical-align:middle; padding:0 8px 0 0;">
+                            <t t-if="company_logo">
+                                <img t-att-src="'data:image/png;base64,' + company_logo"
+                                     style="max-height:40px; max-width:70px;
+                                            object-fit:contain; display:block;"/>
+                            </t>
+                        </td>
+                        <td style="vertical-align:middle; text-align:center;">
+                            <div class="pm-title" style="border-bottom:none; margin:0;">
+                                &#x2728; Precious Metals Inventory Report
+                            </div>
+                            <t t-if="company_name">
+                                <div style="font-size:7px; color:#888;">
+                                    <t t-esc="company_name"/>
+                                </div>
+                            </t>
+                        </td>
+                        <td style="width:80px;"></td>
+                    </tr>
+                </table>
+                <p class="pm-subtitle">
+                    Period: <strong><t t-esc="d.get('datetime_from','')[:16]"/></strong>
+                    &#160;&#8594;&#160;<strong><t t-esc="d.get('datetime_to','')[:16]"/></strong>
+                    &#160;|&#160; Metal: <strong><t t-esc="(d.get('x_metal_type') or 'all').upper()"/></strong>
+                    <t t-if="d.get('only_with_moves')">&#160;|&#160;<em>Movements only</em></t>
+                </p>
+
+                <t t-if="not warehouses">
+                    <p style="color:red;text-align:center;">No data found for the selected filters.</p>
+                </t>
+
+                <t t-foreach="warehouses" t-as="wh">
+                <t t-foreach="wh.get('sections',[])" t-as="section">
+                <t t-if="section.get('rows')">
+
+                <!-- ── Compute visibility flags from section totals ── -->
+                <t t-set="tot" t-value="section['total']"/>
+                <t t-set="show_purchase"     t-value="(tot.get('purchase_qty_raw',0) + tot.get('purchase_w21_raw',0)) != 0"/>
+                <t t-set="show_mfg"          t-value="(tot.get('mfg_qty_raw',0) + tot.get('mfg_w21_raw',0)) != 0"/>
+                <t t-set="show_transfer_in"  t-value="(tot.get('transfer_in_qty_raw',0) + tot.get('transfer_in_w21_raw',0)) != 0"/>
+                <t t-set="show_adj_in"       t-value="(tot.get('adj_in_qty_raw',0) + tot.get('adj_in_w21_raw',0)) != 0"/>
+                <t t-set="show_sale"         t-value="(tot.get('sale_qty_raw',0) + tot.get('sale_w21_raw',0)) != 0"/>
+                <t t-set="show_transfer_out" t-value="(tot.get('transfer_out_qty_raw',0) + tot.get('transfer_out_w21_raw',0)) != 0"/>
+                <t t-set="show_adj_out"      t-value="(tot.get('adj_out_qty_raw',0) + tot.get('adj_out_w21_raw',0)) != 0"/>
+
+                <div class="pm-section">
+                    <div class="pm-loc-header">
+                        Warehouse: <t t-esc="wh['warehouse_name']"/>
+                        &#160;|&#160;
+                        Location: <t t-esc="section['location_name']"/>
+                    </div>
+
+                    <table class="pm">
+                        <thead>
+                            <!-- ── ROW 1: group headers (hidden if total = 0) ── -->
+                            <tr>
+                                <th rowspan="2" style="width:15%;">Product</th>
+                                <th rowspan="2" style="width:6%;">Brand</th>
+                                <th rowspan="2" style="width:4%;">Type</th>
+                                <th rowspan="2" style="width:4%;">Karat</th>
+                                <!-- Opening: always shown -->
+                                <th colspan="2" style="background:#4a6a4a;">Opening</th>
+                                <!-- Purchases -->
+                                <t t-if="show_purchase"><th colspan="2">Purchases</th></t>
+                                <!-- Per-vendor Mfg columns, then Mfg (Total) last -->
+                                <t t-if="show_mfg">
+                                    <t t-set="all_mfg_vendors" t-value="sorted(set(v for row in section.get('rows',[]) for v in row.get('vendor_mfg',{}).keys()))"/>
+                                    <t t-foreach="all_mfg_vendors" t-as="vname">
+                                        <th colspan="2" style="background:#6b4f8a;">Mfg: <t t-esc="vname"/></th>
+                                    </t>
+                                    <t t-if="len(all_mfg_vendors) &gt; 1">
+                                        <th colspan="2" style="background:#4a2d6a;font-weight:bold;">Mfg Total</th>
+                                    </t>
+                                    <!-- Mfg (Total) always last in the Mfg group -->
+                                    <th colspan="2" style="background:#7a5a10;">Mfg (Total)</th>
+                                </t>
+                                <!-- Transfers-in -->
+                                <t t-if="show_transfer_in"><th colspan="2">Transfers-in</th></t>
+                                <!-- Adj IN -->
+                                <t t-if="show_adj_in"><th colspan="2">Adj IN</th></t>
+                                <!-- Total IN: always shown -->
+                                <th colspan="2" style="background:#2d5b2d;">Total IN</th>
+                                <!-- Sales -->
+                                <t t-if="show_sale"><th colspan="2">Sales</th></t>
+                                <!-- Transfers-out -->
+                                <t t-if="show_transfer_out"><th colspan="2">Transfers-out</th></t>
+                                <!-- Adj OUT -->
+                                <t t-if="show_adj_out"><th colspan="2">Adj OUT</th></t>
+                                <!-- Per-vendor Product-to-Scrap OUT -->
+                                <t t-set="all_pts_vendors" t-value="sorted(set(v for row in section.get('rows',[]) for v in row.get('vendor_pts',{}).keys()))"/>
+                                <t t-if="all_pts_vendors">
+                                    <t t-foreach="all_pts_vendors" t-as="vname">
+                                        <th colspan="2" style="background:#8a2020;">PTS: <t t-esc="vname"/></th>
+                                    </t>
+                                    <th colspan="2" style="background:#5a0000;font-weight:bold;">PTS Total</th>
+                                </t>
+                                <!-- Total OUT: always shown -->
+                                <th colspan="2" style="background:#7a3030;">Total OUT</th>
+                                <!-- Closing: always shown -->
+                                <th colspan="2" style="background:#7a5a10;">Closing</th>
+                            </tr>
+                            <!-- ── ROW 2: Qty/W21 sub-headers ── -->
+                            <tr>
+                                <th style="background:#4a6a4a;">Qty</th><th style="background:#4a6a4a;">W21</th>
+                                <t t-if="show_purchase">    <th>Qty</th><th>W21</th></t>
+                                <t t-if="show_mfg">         <th>Qty</th><th>W21</th></t>
+                                <t t-if="show_mfg">
+                                    <t t-foreach="all_mfg_vendors" t-as="vname"><th>Qty</th><th>W21</th></t>
+                                    <t t-if="len(all_mfg_vendors) &gt; 1"><th style="background:#4a2d6a;">Qty</th><th style="background:#4a2d6a;">W21</th></t>
+                                </t>
+                                <t t-if="show_transfer_in"> <th>Qty</th><th>W21</th></t>
+                                <t t-if="show_adj_in">      <th>Qty</th><th>W21</th></t>
+                                <th style="background:#2d5b2d;">Qty</th><th style="background:#2d5b2d;">W21</th>
+                                <t t-if="show_sale">         <th>Qty</th><th>W21</th></t>
+                                <t t-if="show_transfer_out"> <th>Qty</th><th>W21</th></t>
+                                <t t-if="show_adj_out">      <th>Qty</th><th>W21</th></t>
+                                <t t-if="all_pts_vendors">
+                                    <t t-foreach="all_pts_vendors" t-as="vname"><th>Qty</th><th>W21</th></t>
+                                    <th style="background:#5a0000;">Qty</th><th style="background:#5a0000;">W21</th>
+                                </t>
+                                <th style="background:#6a2020;">Qty</th><th style="background:#6a2020;">W21</th>
+                                <th style="background:#6a4a00;">Qty</th><th style="background:#6a4a00;">W21</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="section['rows']" t-as="row">
+                            <tr>
+                                <td class="col-product"><t t-esc="row['product']"/></td>
+                                <td><t t-esc="row['brand']"/></td>
+                                <td><t t-esc="row['x_metal_type']"/></td>
+                                <td><t t-esc="row['karat_display']"/></td>
+                                <!-- Opening -->
+                                <td><t t-esc="int(row['opening_qty'])"/></td>
+                                <td><t t-esc="'%.3f' % row['opening_w21']"/></td>
+                                <!-- Purchases -->
+                                <t t-if="show_purchase">
+                                    <td><t t-esc="int(row['purchase_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % row['purchase_w21']"/></td>
+                                </t>
+                                <!-- Per-vendor Mfg, then Mfg (Total) last -->
+                                <t t-if="show_mfg">
+                                    <t t-foreach="all_mfg_vendors" t-as="vname">
+                                        <td style="background:#f0ebf7;"><t t-esc="int(row.get('vendor_mfg',{}).get(vname, 0))"/></td>
+                                        <td style="background:#f0ebf7;"><t t-esc="'%.3f' % row.get('vendor_mfg_w21',{}).get(vname, 0.0)"/></td>
+                                    </t>
+                                    <t t-if="len(all_mfg_vendors) &gt; 1">
+                                        <td style="background:#e0d4f0;font-weight:bold;"><t t-esc="int(row.get('mfg_vendor_total_qty', 0))"/></td>
+                                        <td style="background:#e0d4f0;font-weight:bold;"><t t-esc="'%.3f' % row.get('mfg_vendor_total_w21', 0.0)"/></td>
+                                    </t>
+                                    <!-- Mfg (Total) always last -->
+                                    <td style="background:#f9f0d8;font-weight:bold;"><t t-esc="int(row['mfg_qty'])"/></td>
+                                    <td style="background:#f9f0d8;font-weight:bold;"><t t-esc="'%.3f' % row['mfg_w21']"/></td>
+                                </t>
+                                <!-- Transfers-in -->
+                                <t t-if="show_transfer_in">
+                                    <td><t t-esc="int(row['transfer_in_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % row['transfer_in_w21']"/></td>
+                                </t>
+                                <!-- Adj IN -->
+                                <t t-if="show_adj_in">
+                                    <td class="c-adj-in"><t t-esc="int(row['adj_in_qty'])"/></td>
+                                    <td class="c-adj-in"><t t-esc="'%.3f' % row['adj_in_w21']"/></td>
+                                </t>
+                                <!-- Total IN -->
+                                <td class="c-green"><t t-esc="int(row['total_in_qty'])"/></td>
+                                <td class="c-green"><t t-esc="'%.3f' % row['total_in_w21']"/></td>
+                                <!-- Sales -->
+                                <t t-if="show_sale">
+                                    <td><t t-esc="int(row['sale_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % row['sale_w21']"/></td>
+                                </t>
+                                <!-- Transfers-out -->
+                                <t t-if="show_transfer_out">
+                                    <td><t t-esc="int(row['transfer_out_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % row['transfer_out_w21']"/></td>
+                                </t>
+                                <!-- Adj OUT -->
+                                <t t-if="show_adj_out">
+                                    <td class="c-adj-out"><t t-esc="int(row['adj_out_qty'])"/></td>
+                                    <td class="c-adj-out"><t t-esc="'%.3f' % row['adj_out_w21']"/></td>
+                                </t>
+                                <!-- Per-vendor Product-to-Scrap OUT -->
+                                <t t-if="all_pts_vendors">
+                                    <t t-foreach="all_pts_vendors" t-as="vname">
+                                        <td style="background:#fde8e8;"><t t-esc="int(row.get('vendor_pts',{}).get(vname, 0))"/></td>
+                                        <td style="background:#fde8e8;"><t t-esc="'%.3f' % row.get('vendor_pts_w21',{}).get(vname, 0.0)"/></td>
+                                    </t>
+                                    <td style="background:#f5c0c0;font-weight:bold;"><t t-esc="int(row.get('pts_total_qty', 0))"/></td>
+                                    <td style="background:#f5c0c0;font-weight:bold;"><t t-esc="'%.3f' % row.get('pts_total_w21', 0.0)"/></td>
+                                </t>
+                                <!-- Total OUT -->
+                                <td class="c-red"><t t-esc="int(row['total_out_qty'])"/></td>
+                                <td class="c-red"><t t-esc="'%.3f' % row['total_out_w21']"/></td>
+                                <!-- Closing -->
+                                <td class="c-orange"><t t-esc="int(row['closing_qty'])"/></td>
+                                <td class="c-orange"><t t-esc="'%.3f' % row['closing_w21']"/></td>
+                            </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="pm-total">
+                                <td colspan="4" style="text-align:left;">TOTAL</td>
+                                <!-- Opening -->
+                                <td><t t-esc="int(tot['opening_qty'])"/></td>
+                                <td><t t-esc="'%.3f' % tot['opening_w21']"/></td>
+                                <!-- Purchases -->
+                                <t t-if="show_purchase">
+                                    <td><t t-esc="int(tot['purchase_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % tot['purchase_w21']"/></td>
+                                </t>
+                                <!-- Per-vendor Mfg totals, then Mfg (Total) last -->
+                                <t t-if="show_mfg">
+                                    <t t-foreach="all_mfg_vendors" t-as="vname">
+                                        <t t-set="vtot_qty" t-value="sum(int(r.get('vendor_mfg',{}).get(vname,0)) for r in section.get('rows',[]))"/>
+                                        <t t-set="vtot_w21" t-value="sum(r.get('vendor_mfg_w21',{}).get(vname,0.0) for r in section.get('rows',[]))"/>
+                                        <td style="background:#e8e0f0;font-weight:bold;"><t t-esc="vtot_qty"/></td>
+                                        <td style="background:#e8e0f0;font-weight:bold;"><t t-esc="'%.3f' % vtot_w21"/></td>
+                                    </t>
+                                    <t t-if="len(all_mfg_vendors) &gt; 1">
+                                        <td style="background:#c8b8e8;font-weight:bold;"><t t-esc="int(tot.get('mfg_vendor_total_qty',0))"/></td>
+                                        <td style="background:#c8b8e8;font-weight:bold;"><t t-esc="'%.3f' % tot.get('mfg_vendor_total_w21',0.0)"/></td>
+                                    </t>
+                                    <!-- Mfg (Total) always last -->
+                                    <td style="background:#f9f0d8;font-weight:bold;"><t t-esc="int(tot['mfg_qty'])"/></td>
+                                    <td style="background:#f9f0d8;font-weight:bold;"><t t-esc="'%.3f' % tot['mfg_w21']"/></td>
+                                </t>
+                                <!-- Transfers-in -->
+                                <t t-if="show_transfer_in">
+                                    <td><t t-esc="int(tot['transfer_in_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % tot['transfer_in_w21']"/></td>
+                                </t>
+                                <!-- Adj IN -->
+                                <t t-if="show_adj_in">
+                                    <td class="c-adj-in"><t t-esc="int(tot['adj_in_qty'])"/></td>
+                                    <td class="c-adj-in"><t t-esc="'%.3f' % tot['adj_in_w21']"/></td>
+                                </t>
+                                <!-- Total IN -->
+                                <td class="c-green"><t t-esc="int(tot['total_in_qty'])"/></td>
+                                <td class="c-green"><t t-esc="'%.3f' % tot['total_in_w21']"/></td>
+                                <!-- Sales -->
+                                <t t-if="show_sale">
+                                    <td><t t-esc="int(tot['sale_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % tot['sale_w21']"/></td>
+                                </t>
+                                <!-- Transfers-out -->
+                                <t t-if="show_transfer_out">
+                                    <td><t t-esc="int(tot['transfer_out_qty'])"/></td>
+                                    <td><t t-esc="'%.3f' % tot['transfer_out_w21']"/></td>
+                                </t>
+                                <!-- Adj OUT -->
+                                <t t-if="show_adj_out">
+                                    <td class="c-adj-out"><t t-esc="int(tot['adj_out_qty'])"/></td>
+                                    <td class="c-adj-out"><t t-esc="'%.3f' % tot['adj_out_w21']"/></td>
+                                </t>
+                                <!-- Per-vendor PTS OUT totals -->
+                                <t t-if="all_pts_vendors">
+                                    <t t-foreach="all_pts_vendors" t-as="vname">
+                                        <t t-set="vpts_qty" t-value="sum(int(r.get('vendor_pts',{}).get(vname,0)) for r in section.get('rows',[]))"/>
+                                        <t t-set="vpts_w21" t-value="sum(r.get('vendor_pts_w21',{}).get(vname,0.0) for r in section.get('rows',[]))"/>
+                                        <td style="background:#f5c0c0;font-weight:bold;"><t t-esc="vpts_qty"/></td>
+                                        <td style="background:#f5c0c0;font-weight:bold;"><t t-esc="'%.3f' % vpts_w21"/></td>
+                                    </t>
+                                    <td style="background:#e08080;font-weight:bold;"><t t-esc="int(tot.get('pts_total_qty',0))"/></td>
+                                    <td style="background:#e08080;font-weight:bold;"><t t-esc="'%.3f' % tot.get('pts_total_w21',0.0)"/></td>
+                                </t>
+                                <!-- Total OUT -->
+                                <td class="c-red"><t t-esc="int(tot['total_out_qty'])"/></td>
+                                <td class="c-red"><t t-esc="'%.3f' % tot['total_out_w21']"/></td>
+                                <!-- Closing -->
+                                <td class="c-orange"><t t-esc="int(tot['closing_qty'])"/></td>
+                                <td class="c-orange"><t t-esc="'%.3f' % tot['closing_w21']"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <p class="pm-formula">
+                        Opening
+                        <t t-if="show_purchase">     + Purchases</t>
+                        <t t-if="show_mfg">          + Mfg</t>
+                        <t t-if="show_transfer_in">  + Transfers-in</t>
+                        <t t-if="show_adj_in">       + Adj IN</t>
+                        <t t-if="show_sale">         &#8722; Sales</t>
+                        <t t-if="show_transfer_out"> &#8722; Transfers-out</t>
+                        <t t-if="show_adj_out">      &#8722; Adj OUT</t>
+                        = Closing &#160;|&#160; Columns with no activity are hidden automatically.
+                    </p>
+                </div>
+
+                </t>
+                </t>
+                </t>
+
+                <p class="pm-footer">
+                    Printed by: <t t-esc="d.get('printed_by','')"/>
+                    &#160;|&#160;
+                    <t t-esc="d.get('printed_at','')"/>
+                </p>
+            </div>
+        </t>
+    </template>
+
+</odoo>

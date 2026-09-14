@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Sale Order Form Extension — Precious Metals ──────────────────── -->
+    <record id="view_sale_order_form_pm" model="ir.ui.view">
+        <field name="name">sale.order.form.pm</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Add Multiple Products button inside order lines -->
+            <xpath expr="//field[@name='order_line']/list/control" position="before">
+                <control>
+                    <button type="object"
+                            name="action_multi_add_products"
+                            string="Add Multiple Products"
+                            class="btn-link"
+                            context="{'active_id': parent.id, 'active_model': 'sale.order'}"
+                            invisible="parent.state in ('sale','done','cancel')"/>
+                </control>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- ── Server Action: Bulk Confirm Quotations ────────────────────────── -->
+    <record id="action_bulk_confirm_quotations" model="ir.actions.server">
+        <field name="name">Confirm Quotations</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = records.action_bulk_confirm_quotations()
+        </field>
+    </record>
+
+    <!-- ── Metal Type Filters ─────────────────────────────────────────────── -->
+    <record id="view_sale_order_search_metal_type" model="ir.ui.view">
+        <field name="name">sale.order.search.metal.type</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="mode">extension</field>
+        <field name="priority">21</field>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <separator/>
+                <filter name="metal_gold"   string="Gold"   domain="[('x_metal_type','=','Gold')]"/>
+                <filter name="metal_silver" string="Silver" domain="[('x_metal_type','=','silver')]"/>
+                <group>
+                    <filter name="group_by_metal_type"
+                            string="Metal Type"
+                            context="{'group_by': 'x_metal_type'}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

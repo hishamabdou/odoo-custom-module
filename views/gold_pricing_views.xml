@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+   <!-- Sale Order View -->
+    <record id="view_order_form_gold_pricing" model="ir.ui.view">
+        <field name="name">sale.order.form.gold.pricing</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                <div style="margin-bottom: 10px;">
+                    <div class="row" style="margin-bottom: 5px;">
+                        <div class="col-2" style="text-align: right; padding-right: 20px;"
+                             title="">
+                            Price21:
+                        </div>
+                        <div class="col-10" style="text-align: right; padding-right: 15px;">
+                            <field name="x_price_21" nolabel="1"
+                                style="text-align: right;" widget="float" options="{'digits': [16, 2]}"
+                                readonly="x_price21_locked"/>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 5px;">
+                        <div class="col-3" style="text-align: right; padding-right: 20px;">
+                            Weight21:
+                        </div>
+                        <div class="col-9" style="text-align: right; padding-right: 15px;">
+                            <field name="x_weight_21" nolabel="1" readonly="1" widget="float" options="{'digits': [16, 3]}"
+                                style="text-align: right; border: none; background: transparent;"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Sale Order Lines -->
+    <record id="view_order_form_line_gold_fields" model="ir.ui.view">
+        <field name="name">sale.order.line.form.gold.fields</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_template_id']" position="after">
+                <field name="x_metal_type" string="Metal" optional="show" readonly="1" width="60px"/>
+                <field name="x_karat" string="Karat" optional="show" readonly="1" width="40px"/>
+                <field name="x_gold_weight" string="W" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="weight_21" string="W21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="tweight_21" string="TW21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 3]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Modify price_unit display in Sale Order Lines -->
+    <record id="view_order_form_price_unit_display" model="ir.ui.view">
+        <field name="name">sale.order.line.price.unit.display</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="widget">float</attribute>
+                <attribute name="options">{'digits': [16, 2]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Purchase Order View -->
+    <record id="view_purchase_order_form_gold_pricing" model="ir.ui.view">
+        <field name="name">purchase.order.form.gold.pricing</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                <field name="x_price_21" string="Price21" widget="float" options="{'digits': [16, 2]}"
+                    readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight21" widget="float" options="{'digits': [16, 3]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Purchase Order Lines -->
+    <record id="view_purchase_order_form_line_gold_fields" model="ir.ui.view">
+        <field name="name">purchase.order.line.form.gold.fields</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list//field[@name='product_id']" position="after">
+                <field name="x_metal_type" string="Metal" readonly="1" optional="show" width="60px"/>
+                <field name="x_karat" string="Karat" readonly="1" optional="show" width="40px"/>
+                <field name="x_gold_weight" string="W" readonly="1" optional="show" width="60px" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="weight_21" string="W21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="tweight_21" string="TW21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 3]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Modify price_unit display in Purchase Order Lines -->
+    <record id="view_purchase_order_form_price_unit_display" model="ir.ui.view">
+        <field name="name">purchase.order.line.price.unit.display</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="widget">float</attribute>
+                <attribute name="options">{'digits': [16, 2]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Invoice View -->
+    <record id="view_move_form_gold_pricing" model="ir.ui.view">
+        <field name="name">account.move.form.gold.pricing</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_totals']" position="before">
+                <field name="x_price_21" string="Price21" invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')" widget="float" options="{'digits': [16, 2]}"
+                    readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight21" invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')" widget="float" options="{'digits': [16, 3]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Invoice Lines -->
+    <record id="view_move_form_line_gold_fields" model="ir.ui.view">
+        <field name="name">account.move.line.form.gold.fields</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='product_id']" position="after">
+                <field name="x_metal_type" string="Metal" readonly="1" optional="show" width="60px"/>
+                <field name="x_karat" string="Karat" readonly="1" optional="show" width="40px"/>
+                <field name="x_gold_weight" string="W" readonly="1" optional="show" width="60px" widget="float" options="{'digits': [16, 2]}"/>
+                <field name="weight_21" string="W21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 3]}"/>
+                <field name="tweight_21" string="TW21" optional="show" readonly="1" width="60px" widget="float" options="{'digits': [16, 3]}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Modify price_unit display in Invoice Lines -->
+    <record id="view_move_form_price_unit_display" model="ir.ui.view">
+        <field name="name">account.move.line.price.unit.display</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_line_ids']/list//field[@name='price_unit']" position="attributes">
+                <attribute name="widget">float</attribute>
+                <attribute name="options">{'digits': [16, 2]}</attribute>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- Customer Invoices &amp; Vendor Bills LIST -->
+    <record id="view_invoice_tree_gold_fields" model="ir.ui.view">
+        <field name="name">account.move.invoice.tree.gold.fields</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <!-- Gold fields after invoice_date -->
+            <xpath expr="//field[@name='amount_residual_signed']" position="after">
+                <field name="x_metal_type" string="Metal Type" optional="show" readonly="1"/>
+                <field name="x_price_21" string="Price 21" optional="show" widget="float" options="{'digits': [16, 2]}" readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight 21" optional="show" readonly="1" widget="float" options="{'digits': [16, 3]}"
+                       sum="&#x03A3; Weight 21"/>
+            </xpath>
+            <!-- SO Status fields — appended after the last gold field -->
+            <xpath expr="//field[@name='x_weight_21']" position="after">
+            </xpath>
+            <!-- Row coloring handled by JS (sale_order_list.js) via pm-inv-* classes -->
+        </field>
+    </record>
+
+
+
+    <!-- RFQs LIST — inherits purchase_order_kpis_tree (used in Requests for Quotation) -->
+    <record id="view_purchase_rfq_list_gold_fields" model="ir.ui.view">
+        <field name="name">purchase.rfq.list.gold.fields</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_kpis_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="x_metal_type" string="Metal Type" optional="show" readonly="1"/>
+                <field name="x_price_21" string="Price 21" optional="show" widget="float" options="{'digits': [16, 2]}" readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight 21" optional="show" readonly="1" widget="float" options="{'digits': [16, 3]}"
+                       sum="&#x03A3; Weight 21"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Purchase Orders LIST — inherits purchase_order_view_tree (used in Purchase Orders) -->
+    <record id="view_purchase_order_tree_gold_fields" model="ir.ui.view">
+        <field name="name">purchase.order.tree.gold.fields</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='invoice_status']" position="after">
+                <field name="x_metal_type" string="Metal Type" optional="show" readonly="1"/>
+                <field name="x_price_21" string="Price 21" optional="show" widget="float" options="{'digits': [16, 2]}" readonly="x_price21_locked"/>
+                <field name="x_weight_21" string="Weight 21" optional="show" readonly="1" widget="float" options="{'digits': [16, 3]}"
+                       sum="&#x03A3; Weight 21"/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- Menu Items -->
+    <menuitem id="menu_gold_pricing_main" 
+              name="Gold Pricing" 
+              parent="sale.sale_menu_root" 
+              sequence="10"/>
+
+    <!-- ══ Metal Type — ir.filters on Purchase Orders ══ -->
+    <record id="filter_purchase_metal_gold" model="ir.filters">
+        <field name="name">Gold</field>
+        <field name="model_id">purchase.order</field>
+        <field name="domain">[('x_metal_type','=','Gold')]</field>
+        <field name="is_default">0</field>
+    </record>
+    <record id="filter_purchase_metal_silver" model="ir.filters">
+        <field name="name">Silver</field>
+        <field name="model_id">purchase.order</field>
+        <field name="domain">[(('x_metal_type','=','silver'))]</field>
+        <field name="is_default">0</field>
+    </record>
+    <record id="filter_purchase_metal_mixed" model="ir.filters">
+        <field name="name">Mixed</field>
+        <field name="model_id">purchase.order</field>
+        <field name="domain">[('x_metal_type','=','Mixed')]</field>
+        <field name="is_default">0</field>
+    </record>
+    <record id="filter_purchase_groupby_metal" model="ir.filters">
+        <field name="name">Group by Metal Type</field>
+        <field name="model_id">purchase.order</field>
+        <field name="domain">[]</field>
+        <field name="context">{"group_by": ["x_metal_type"]}</field>
+        <field name="is_default">0</field>
+    </record>
+
+    <!-- ══ Metal Type — ir.filters on Invoices (avoids account search view fragility) ══ -->
+    <record id="filter_invoice_metal_gold" model="ir.filters">
+        <field name="name">Gold</field>
+        <field name="model_id">account.move</field>
+        <field name="domain">[('x_metal_type','=','Gold')]</field>
+        <field name="is_default">0</field>
+    </record>
+    <record id="filter_invoice_metal_silver" model="ir.filters">
+        <field name="name">Silver</field>
+        <field name="model_id">account.move</field>
+        <field name="domain">[(('x_metal_type','=','silver'))]</field>
+        <field name="is_default">0</field>
+    </record>
+   
+
+    <!-- ══ Metal Type column on Invoice list (already added via x_weight_21 view) ══ -->
+    <!-- Group By via ir.filters (Favorites) for account.move -->
+    <record id="filter_invoice_groupby_metal" model="ir.filters">
+        <field name="name">Group by Metal Type</field>
+        <field name="model_id">account.move</field>
+        <field name="domain">[]</field>
+        <field name="context">{"group_by": ["x_metal_type"]}</field>
+        <field name="is_default">0</field>
+    </record>
+
+</odoo>

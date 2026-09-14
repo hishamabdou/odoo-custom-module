@@ -1,0 +1,121 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Precious Metals Suite — Inventory Status Row Coloring
+   ═══════════════════════════════════════════════════════════════════
+
+   State                        Color         Class
+   ─────────────────────────────────────────────────────────────────
+   pending                      رمادي         pm-inv-pending
+   waiting                      أحمر          pm-inv-waiting
+   waiting_in_branch            أحمر          → pm-inv-waiting
+   reserved                     أزرق          pm-inv-reserved
+   reserved_in_branch           أزرق          → pm-inv-reserved
+   reserved_waiting             برتقالي       pm-inv-reserved-waiting
+   custody_reserved             أخضر          pm-inv-custody-reserved
+   custody_reserved_waiting     أصفر          pm-inv-custody-reserved-waiting
+   custody_ready                بنفسجي        pm-inv-custody-ready
+   custody_in_branch            بنفسجي        → pm-inv-custody-ready
+   custody_ready_in_branch      بنفسجي        → pm-inv-custody-ready
+   custody_waiting              فوشيا         pm-inv-custody-waiting
+   custody_waiting_in_branch    فوشيا         → pm-inv-custody-waiting
+   sent_to_provider             بيج/بني فاتح  pm-inv-sent-to-provider
+   batched                      سماوي/تيل     pm-inv-batched
+   batched_in_branch            سماوي/تيل     → pm-inv-batched
+   batched_in_main_vault        سماوي/تيل     → pm-inv-batched
+   delivered                    بدون لون      —
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── 1. Pending — رمادي ────────────────────────────────────────── */
+.o_list_table tr.pm-inv-pending td {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+}
+.o_list_table tr.pm-inv-pending {
+    border-left: 3px solid #adb5bd !important;
+}
+
+/* ─── 2. Waiting — أحمر ─────────────────────────────────────────── */
+.o_list_table tr.pm-inv-waiting td {
+    background-color: #fccaca !important;
+    color: #7f1d1d !important;
+}
+.o_list_table tr.pm-inv-waiting {
+    border-left: 3px solid #dc2626 !important;
+}
+
+/* ─── 3. Reserved — أزرق ────────────────────────────────────────── */
+.o_list_table tr.pm-inv-reserved td {
+    background-color: #bfdbfe !important;
+    color: #1e3a8a !important;
+}
+.o_list_table tr.pm-inv-reserved {
+    border-left: 3px solid #3b82f6 !important;
+}
+
+/* ─── 4. Reserved + Waiting — برتقالي ───────────────────────────── */
+.o_list_table tr.pm-inv-reserved-waiting td {
+    background-color: #fed7aa !important;
+    color: #7c2d12 !important;
+}
+.o_list_table tr.pm-inv-reserved-waiting {
+    border-left: 3px solid #f97316 !important;
+}
+
+/* ─── 5. Custody + Reserved — أخضر ──────────────────────────────── */
+.o_list_table tr.pm-inv-custody-reserved td {
+    background-color: #bbf7d0 !important;
+    color: #14532d !important;
+}
+.o_list_table tr.pm-inv-custody-reserved {
+    border-left: 3px solid #16a34a !important;
+}
+
+/* ─── 6. Custody + Reserved + Waiting — أصفر ────────────────────── */
+.o_list_table tr.pm-inv-custody-reserved-waiting td {
+    background-color: #fef08a !important;
+    color: #713f12 !important;
+}
+.o_list_table tr.pm-inv-custody-reserved-waiting {
+    border-left: 3px solid #eab308 !important;
+}
+
+/* ─── 7. Custody Ready — بنفسجي ─────────────────────────────────── */
+.o_list_table tr.pm-inv-custody-ready td {
+    background-color: #ddd6fe !important;
+    color: #3b0764 !important;
+}
+.o_list_table tr.pm-inv-custody-ready {
+    border-left: 3px solid #7c3aed !important;
+}
+
+/* ─── 8. Custody Waiting — فوشيا ────────────────────────────────── */
+.o_list_table tr.pm-inv-custody-waiting td {
+    background-color: #f5d0fe !important;
+    color: #701a75 !important;
+}
+.o_list_table tr.pm-inv-custody-waiting {
+    border-left: 3px solid #d946ef !important;
+}
+
+/* ─── Hover ──────────────────────────────────────────────────────── */
+.o_list_table tr[class*="pm-inv-"]:hover td {
+    filter: brightness(0.93) !important;
+}
+
+/* ─── 9. Sent to Provider — بيج/بني فاتح ────────────────────────── */
+.o_list_table tr.pm-inv-sent-to-provider td {
+    background-color: #fde68a !important;
+    color: #78350f !important;
+}
+.o_list_table tr.pm-inv-sent-to-provider {
+    border-left: 3px solid #d97706 !important;
+}
+
+/* ─── 10. Batched — سماوي/تيل ───────────────────────────────────── */
+.o_list_table tr.pm-inv-batched td {
+    background-color: #ff9267 !important;
+    color: #1f2937 !important;
+}
+.o_list_table tr.pm-inv-batched {
+    border-left: 3px solid #0891b2 !important;
+}
+

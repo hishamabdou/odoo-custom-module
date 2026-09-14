@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         Inventory List (stock.quant) ─ إضافة Weight 21 عمود مع تجميع
+         
+         View: stock.view_stock_quant_tree_inventory_editable
+         Model: stock.quant
+         نضيف total_weight_21_quant بعد quantity (On Hand)
+         ═══════════════════════════════════════════════════════════════════ -->
+    <record id="view_stock_quant_tree_weight21" model="ir.ui.view">
+        <field name="name">stock.quant.tree.weight21</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_inventory_editable"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quantity']" position="after">
+                <field name="x_metal_type" string="Metal Type" optional="show" readonly="1"/>
+                <field name="total_weight_21_quant"
+                       string="Weight 21"
+                       optional="show"
+                       readonly="1"
+                       widget="float"
+                       options="{'digits': [16, 3]}"
+                       sum="&#x03A3; Weight 21"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

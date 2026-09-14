@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- PDF Actions -->
+    <record id="action_report_product_ledger" model="ir.actions.report">
+        <field name="name">Product Ledger</field>
+        <field name="model">product.ledger.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">precious_metals_suite.report_product_ledger_template</field>
+        <field name="report_file">precious_metals_suite.report_product_ledger_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <!-- PDF: Save as PDF -->
+    <record id="action_report_product_ledger_pdf" model="ir.actions.report">
+        <field name="name">Product Ledger (PDF)</field>
+        <field name="model">product.ledger.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">precious_metals_suite.report_product_ledger_template</field>
+        <field name="report_file">precious_metals_suite.report_product_ledger_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="print_report_name">object._get_export_filename('ProductLedger', 'pdf')</field>
+    </record>
+
+    <record id="action_report_adjustment_log" model="ir.actions.report">
+        <field name="name">Adjustment Log</field>
+        <field name="model">adjustment.log.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">precious_metals_suite.report_adjustment_log_template</field>
+        <field name="report_file">precious_metals_suite.report_adjustment_log_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+    </record>
+    <!-- PDF: Save as PDF -->
+    <record id="action_report_adjustment_log_pdf" model="ir.actions.report">
+        <field name="name">Adjustment Log (PDF)</field>
+        <field name="model">adjustment.log.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">precious_metals_suite.report_adjustment_log_template</field>
+        <field name="report_file">precious_metals_suite.report_adjustment_log_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="print_report_name">object._get_export_filename('AdjustmentLog', 'pdf')</field>
+    </record>
+
+    <record id="action_report_comparison" model="ir.actions.report">
+        <field name="name">Period Comparison</field>
+        <field name="model">comparison.report.wizard</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">precious_metals_suite.report_comparison_template</field>
+        <field name="report_file">precious_metals_suite.report_comparison_template</field>
+        
+    </record>
+    <!-- PDF: Save as PDF -->
+    <record id="action_report_comparison_pdf" model="ir.actions.report">
+        <field name="name">Comparison (PDF)</field>
+        <field name="model">comparison.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">precious_metals_suite.report_comparison_template</field>
+        <field name="report_file">precious_metals_suite.report_comparison_template</field>
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="print_report_name">object._get_export_filename('Comparison', 'pdf')</field>
+    </record>
+
+    <!-- ══ [2] Product Ledger Template ══════════════════════════════════ -->
+    <template id="report_product_ledger_template">
+        <t t-call="web.html_container">
+        <meta charset="UTF-8"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <style>
+            /* ── Arabic + Unicode font support for PDF (wkhtmltopdf) ── */
+            body, * { font-family: "DejaVu Sans", "Noto Sans Arabic", Arial, sans-serif !important; }
+            .arabic, [dir="rtl"], .customer-name {
+                direction: rtl;
+                unicode-bidi: embed;
+                text-align: right;
+                font-family: "DejaVu Sans", "Noto Naskh Arabic", Arial, sans-serif !important;
+            }
+        </style>
+        <style>
+            @media print {
+                .o_action_manager, .o_main_navbar, .o_control_panel,
+                .breadcrumb, .o_cp_buttons, .btn, button,
+                .o_report_no_print { display: none !important; }
+            @page { margin: 0; size: A4 landscape; }
+            html, body { margin: 0 !important; padding: 0 !important; }
+            .page { padding: 0.4cm 0.6cm 0.5cm 0.6cm !important; margin: 0 !important; }
+                table { page-break-inside: auto; }
+                tr    { page-break-inside: avoid; page-break-after: auto; }
+                thead { display: table-header-group; }
+                tfoot { display: table-footer-group; }
+            }
+        </style>
+
+            <t t-set="d"  t-value="report_records[0]"/>
+                
+            <div class="page" style="font-size:8px; font-family:DejaVu Sans,Noto Sans Arabic,Arial,sans-serif;">
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <!-- ── Logo Header ── -->
+                                <table style="width:100%; border-bottom:2px solid #8B6914;
+                                              margin-bottom:4px; padding-bottom:3px; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:70px; vertical-align:middle; padding:0 8px 0 0;">
+                                            <t t-if="company_logo">
+                                                <img t-att-src="'data:image/png;base64,' + company_logo"
+                                                     style="max-height:40px; max-width:65px;
+                                                            object-fit:contain; display:block;"/>
+                                            </t>
+                                        </td>
+                                        <td style="vertical-align:middle; text-align:center;">
+                                            <div style="font-size:13px; font-weight:bold; color:#8B6914;">
+                                                Product Ledger
+                                            </div>
+                                            <t t-if="company_name">
+                                                <div style="font-size:7px; color:#888; margin-top:1px;">
+                                                    <t t-esc="company_name"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:70px;"></td>
+                                    </tr>
+                                </table>
+                        <p style="margin:2px 0; font-size:9px; font-weight:bold;">
+                            <t t-esc="d.get('product_name','')"/>
+                            &#160;|&#160; <t t-esc="d.get('brand','')"/>
+                            &#160;|&#160; <t t-esc="d.get('x_metal_type','')"/>
+                            &#160;|&#160; Karat: <t t-esc="d.get('karat_display','')"/>
+                        </p>
+                        <p style="margin:2px 0; color:#666; font-size:8px;">
+                            From: <strong><t t-esc="d.get('datetime_from','')"/></strong>
+                            &#160;&#x2192;&#160;
+                            To: <strong><t t-esc="d.get('datetime_to','')"/></strong>
+                        </p>
+                        <p style="margin:2px 0; color:#555; font-size:8px;">
+                            Opening Balance:
+                            <strong><t t-esc="'%d' % d.get('opening_qty',0)"/></strong> pcs
+                            &#160;|&#160; W21:
+                            <strong><t t-esc="'%.3f' % d.get('opening_w21',0)"/></strong> g
+                        </p>
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:7.5px;">
+                        <thead>
+                            <tr style="background:#8B6914; color:white; text-align:center;">
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:13%;">Date &amp; Time</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:10%;">Type</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:18%;">Reference</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:15%;">Partner</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:7%; background:#2d5b2d;">IN Qty</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:8%; background:#2d5b2d;">IN W21</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:7%; background:#7a3030;">OUT Qty</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:8%; background:#7a3030;">OUT W21</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:7%; background:#7a5a10;">Bal Qty</th>
+                                <th style="padding:3px 4px; border:1px solid #aaa; width:7%; background:#7a5a10;">Bal W21</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Opening Balance Row -->
+                            <tr style="text-align:center; background:#e8eaf6; font-weight:bold; font-size:8px;">
+                                <td style="padding:3px 4px; border:1px solid #c5cae9; text-align:left; color:#3949ab;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9; color:#3949ab;">Opening Balance</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9;">&#x2014;</td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9; background:#c5cae9; color:#1a237e;">
+                                    <t t-esc="'%d' % d.get('opening_qty', 0)"/>
+                                </td>
+                                <td style="padding:3px 4px; border:1px solid #c5cae9; background:#c5cae9; color:#1a237e;">
+                                    <t t-esc="'%.3f' % d.get('opening_w21', 0)"/>
+                                </td>
+                            </tr>
+                            <t t-foreach="d.get('lines',[])" t-as="line">
+                                <t t-set="is_adj"  t-value="line['move_type'] == 'Adjustment'"/>
+                                <t t-set="is_in"   t-value="line['qty_in'] > 0"/>
+                                <tr style="text-align:center;">
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['date']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0;
+                                        background: '#fff9c4' if is_adj else ('#e8f5e9' if is_in else '#fce4ec');">
+                                        <t t-esc="line['move_type']"/>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['reference']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['partner']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#e8f5e9;">
+                                        <t t-if="line['qty_in'] > 0"><t t-esc="'%d' % line['qty_in']"/></t>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#e8f5e9;">
+                                        <t t-if="line['qty_in'] > 0"><t t-esc="'%.3f' % line['w21_in']"/></t>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#fce4ec;">
+                                        <t t-if="line['qty_out'] > 0"><t t-esc="'%d' % line['qty_out']"/></t>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#fce4ec;">
+                                        <t t-if="line['qty_out'] > 0"><t t-esc="'%.3f' % line['w21_out']"/></t>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#fff3e0; font-weight:bold;">
+                                        <t t-esc="'%d' % line['balance_qty']"/>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#fff3e0; font-weight:bold;">
+                                        <t t-esc="'%.3f' % line['balance_w21']"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:#8B6914; color:white; font-weight:bold; text-align:center; font-size:9px;">
+                                <td colspan="8" style="padding:4px 6px; border:1px solid #6a4a00; text-align:left;">CLOSING BALANCE</td>
+                                <td style="padding:4px 6px; border:1px solid #6a4a00;"><t t-esc="'%d' % d.get('closing_qty',0)"/></td>
+                                <td style="padding:4px 6px; border:1px solid #6a4a00;"><t t-esc="'%.3f' % d.get('closing_w21',0)"/></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- [5] Footer -->
+                    <p style="font-size:6.5px; color:#aaa; margin-top:8px; text-align:right;">
+                        Printed by: <t t-esc="d.get('printed_by','')"/> &#160;|&#160; <t t-esc="d.get('printed_at','')"/>
+                    </p>
+                </div>
+            </t>
+    </template>
+
+    <!-- ══ [3] Adjustment Log Template ══════════════════════════════════ -->
+    <template id="report_adjustment_log_template">
+        <t t-call="web.html_container">
+            <t t-set="d" t-value="report_records[0]"/>
+                
+            <div class="page" style="font-size:8px; font-family:DejaVu Sans,Noto Sans Arabic,Arial,sans-serif;">
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <!-- ── Logo Header ── -->
+                                <table style="width:100%; border-bottom:2px solid #C62828;
+                                              margin-bottom:4px; padding-bottom:3px; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:70px; vertical-align:middle; padding:0 8px 0 0;">
+                                            <t t-if="company_logo">
+                                                <img t-att-src="'data:image/png;base64,' + company_logo"
+                                                     style="max-height:40px; max-width:65px;
+                                                            object-fit:contain; display:block;"/>
+                                            </t>
+                                        </td>
+                                        <td style="vertical-align:middle; text-align:center;">
+                                            <div style="font-size:13px; font-weight:bold; color:#C62828;">
+                                                &#x26A0; Inventory Adjustment Log
+                                            </div>
+                                            <t t-if="company_name">
+                                                <div style="font-size:7px; color:#888; margin-top:1px;">
+                                                    <t t-esc="company_name"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:70px;"></td>
+                                    </tr>
+                                </table>
+                        <p style="color:#555; margin:0; font-size:8px;">
+                            From: <strong><t t-esc="d.get('datetime_from','')"/></strong>
+                            &#160;&#x2192;&#160;
+                            To: <strong><t t-esc="d.get('datetime_to','')"/></strong>
+                            &#160;|&#160; Total: <strong><t t-esc="len(d.get('lines',[]))"/></strong> adjustments
+                        </p>
+                    </div>
+
+                    <t t-if="not d.get('lines')">
+                        <p style="text-align:center; color:#888;">No inventory adjustments found for the selected period.</p>
+                    </t>
+
+                    <t t-if="d.get('lines')">
+                        <table style="width:100%; border-collapse:collapse; font-size:7.5px;">
+                            <thead>
+                                <tr style="background:#8B6914; color:white; text-align:center;">
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Date &amp; Time</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Product</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Brand</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Type</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Karat</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa; background:#6a4a00;">&#x0394; Qty</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa; background:#6a4a00;">&#x0394; W21</th>
+                                    <th style="padding:3px 4px; border:1px solid #aaa;">Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="d.get('lines',[])" t-as="line">
+                                    <t t-set="is_pos" t-value="line['delta_qty'] >= 0"/>
+                                    <tr style="text-align:center;">
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['date']"/></td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['product']"/></td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0;"><t t-esc="line['brand']"/></td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0;"><t t-esc="line['x_metal_type']"/></td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0;"><t t-esc="line['karat_display']"/></td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0; font-weight:bold;
+                                            background: '#e8f5e9' if is_pos else '#fce4ec';
+                                            color: '#2E7D32' if is_pos else '#C62828';">
+                                            <t t-esc="('+' if is_pos else '') + '%.3f' % line['delta_qty']"/>
+                                        </td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0; font-weight:bold;
+                                            background: '#e8f5e9' if is_pos else '#fce4ec';
+                                            color: '#2E7D32' if is_pos else '#C62828';">
+                                            <t t-esc="('+' if is_pos else '') + '%.3f' % line['delta_w21']"/>
+                                        </td>
+                                        <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="line['reference']"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+
+                    <p style="font-size:6.5px; color:#aaa; margin-top:8px; text-align:right;">
+                        Printed by: <t t-esc="d.get('printed_by','')"/> &#160;|&#160; <t t-esc="d.get('printed_at','')"/>
+                    </p>
+                </div>
+        </t>
+    </template>
+
+    <!-- ══ [6] Comparison Template ═══════════════════════════════════════ -->
+    <template id="report_comparison_template">
+        <t t-call="web.html_container">
+            <t t-set="d"  t-value="report_records[0]"/>
+            <t t-set="la" t-value="d.get('label_a','A')"/>
+            <t t-set="lb" t-value="d.get('label_b','B')"/>
+                
+            <div class="page" style="font-size:7.5px; font-family:DejaVu Sans,Noto Sans Arabic,Arial,sans-serif;">
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <!-- ── Logo Header ── -->
+                                <table style="width:100%; border-bottom:2px solid #1565C0;
+                                              margin-bottom:4px; padding-bottom:3px; border-collapse:collapse;">
+                                    <tr>
+                                        <td style="width:70px; vertical-align:middle; padding:0 8px 0 0;">
+                                            <t t-if="company_logo">
+                                                <img t-att-src="'data:image/png;base64,' + company_logo"
+                                                     style="max-height:40px; max-width:65px;
+                                                            object-fit:contain; display:block;"/>
+                                            </t>
+                                        </td>
+                                        <td style="vertical-align:middle; text-align:center;">
+                                            <div style="font-size:13px; font-weight:bold; color:#1565C0;">
+                                                Period Comparison Report
+                                            </div>
+                                            <t t-if="company_name">
+                                                <div style="font-size:7px; color:#888; margin-top:1px;">
+                                                    <t t-esc="company_name"/>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="width:70px;"></td>
+                                    </tr>
+                                </table>
+                        <p style="margin:2px 0; font-size:8px; color:#1565C0; font-weight:bold;">
+                            <t t-esc="la"/>: <t t-esc="d.get('period_a_from','')"/> &#x2192; <t t-esc="d.get('period_a_to','')"/>
+                        </p>
+                        <p style="margin:2px 0; font-size:8px; color:#2E7D32; font-weight:bold;">
+                            <t t-esc="lb"/>: <t t-esc="d.get('period_b_from','')"/> &#x2192; <t t-esc="d.get('period_b_to','')"/>
+                        </p>
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; font-size:7px;">
+                        <thead>
+                            <tr style="background:#8B6914; color:white; text-align:center;">
+                                <th rowspan="2" style="padding:3px 4px; border:1px solid #aaa; vertical-align:middle;">Product</th>
+                                <th rowspan="2" style="padding:3px 4px; border:1px solid #aaa; vertical-align:middle;">Type</th>
+                                <th rowspan="2" style="padding:3px 4px; border:1px solid #aaa; vertical-align:middle;">Karat</th>
+                                <th colspan="2" style="padding:2px 4px; border:1px solid #aaa; background:#1565C0;">
+                                    <t t-esc="la"/> &#x2014; Closing
+                                </th>
+                                <th colspan="2" style="padding:2px 4px; border:1px solid #aaa; background:#2E7D32;">
+                                    <t t-esc="lb"/> &#x2014; Closing
+                                </th>
+                                <th colspan="2" style="padding:2px 4px; border:1px solid #aaa; background:#1565C0;">
+                                    <t t-esc="la"/> &#x2014; IN
+                                </th>
+                                <th colspan="2" style="padding:2px 4px; border:1px solid #aaa; background:#2E7D32;">
+                                    <t t-esc="lb"/> &#x2014; IN
+                                </th>
+                                <th colspan="2" style="padding:2px 4px; border:1px solid #aaa; background:#6A1B9A;">
+                                    &#x0394; Closing
+                                </th>
+                            </tr>
+                            <tr style="background:#a07830; color:white; text-align:center; font-size:6.5px;">
+                                <th style="padding:2px; border:1px solid #aaa; background:#1565C0;">Qty</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#1565C0;">W21</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#2E7D32;">Qty</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#2E7D32;">W21</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#1565C0;">Qty</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#1565C0;">W21</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#2E7D32;">Qty</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#2E7D32;">W21</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#6A1B9A;">Qty</th>
+                                <th style="padding:2px; border:1px solid #aaa; background:#6A1B9A;">W21</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="d.get('rows',[])" t-as="row">
+                                <t t-set="diff_pos" t-value="row['diff_closing_qty'] >= 0"/>
+                                <tr style="text-align:center;">
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; text-align:left;"><t t-esc="row['product']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0;"><t t-esc="row['x_metal_type']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0;"><t t-esc="row['karat_display']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E3F2FD;"><t t-esc="'%.3f' % row['a_closing_qty']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E3F2FD;"><t t-esc="'%.3f' % row['a_closing_w21']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E8F5E9;"><t t-esc="'%.3f' % row['b_closing_qty']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E8F5E9;"><t t-esc="'%.3f' % row['b_closing_w21']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E3F2FD;"><t t-esc="'%.3f' % row['a_in_qty']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E3F2FD;"><t t-esc="'%.3f' % row['a_in_w21']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E8F5E9;"><t t-esc="'%.3f' % row['b_in_qty']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; background:#E8F5E9;"><t t-esc="'%.3f' % row['b_in_w21']"/></td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; font-weight:bold;
+                                        background: '#F3E5F5'; color: '#2E7D32' if diff_pos else '#C62828';">
+                                        <t t-esc="('+' if diff_pos else '') + '%.3f' % row['diff_closing_qty']"/>
+                                    </td>
+                                    <td style="padding:2px 3px; border:1px solid #e0e0e0; font-weight:bold;
+                                        background: '#F3E5F5'; color: '#2E7D32' if diff_pos else '#C62828';">
+                                        <t t-esc="('+' if diff_pos else '') + '%.3f' % row['diff_closing_w21']"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <p style="font-size:6.5px; color:#aaa; margin-top:8px; text-align:right;">
+                        Printed by: <t t-esc="d.get('printed_by','')"/> &#160;|&#160; <t t-esc="d.get('printed_at','')"/>
+                    </p>
+                </div>
+        </t>
+    </template>
+
+</odoo>

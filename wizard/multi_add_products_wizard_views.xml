@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_multi_add_products_wizard" model="ir.ui.view">
+        <field name="name">sale.multi.add.products.wizard.form</field>
+        <field name="model">sale.multi.add.products.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Add Multiple Products">
+                <sheet>
+                    <group>
+                        <field name="order_id" readonly="1"/>
+                        <field name="warehouse_id" readonly="1"/>
+                    </group>
+                    <field name="line_ids">
+                        <list string="Select Products" create="0" delete="0">
+                            <field name="to_add" widget="boolean_toggle"/>
+                            <field name="name" string="Product"/>
+                            <field name="x_metal_type" string="Type"/>
+                            <field name="karat_display" string="Karat"/>
+                            <field name="x_gold_weight" string="Weight (g)"/>
+                            <field name="on_hand_qty" string="Available (Warehouse)" readonly="1"/>
+                            <field name="product_tmpl_id" column_invisible="1"/>
+                        </list>
+                    </field>
+                </sheet>
+                <footer>
+                    <button string="Add to Order"
+                            type="object"
+                            name="action_add_products"
+                            class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sale_multi_add_products" model="ir.actions.act_window">
+        <field name="name">Add Multiple Products</field>
+        <field name="res_model">sale.multi.add.products.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_order_id': active_id}</field>
+    </record>
+</odoo>

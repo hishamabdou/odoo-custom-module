@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_precious_metal_brand_pm_user,precious.metal.brand.pm.user,model_precious_metal_brand,precious_metals_suite.group_user,1,0,0,0
+access_precious_metal_brand_pm_manager,precious.metal.brand.pm.manager,model_precious_metal_brand,precious_metals_suite.group_manager,1,1,1,0
+access_precious_metal_brand_pm_admin,precious.metal.brand.pm.admin,model_precious_metal_brand,precious_metals_suite.group_admin,1,1,1,1
+access_precious_metal_report_wizard_pm_user,precious.metal.report.wizard.pm.user,model_precious_metal_report_wizard,precious_metals_suite.group_user,1,1,1,1
+access_qty_on_hand_wizard_pm_user,qty.on.hand.wizard.pm.user,model_qty_on_hand_wizard,precious_metals_suite.group_user,1,1,1,1
+access_product_ledger_wizard_pm_user,product.ledger.wizard.pm.user,model_product_ledger_wizard,precious_metals_suite.group_user,1,1,1,1
+access_adjustment_log_wizard_pm_user,adjustment.log.wizard.pm.user,model_adjustment_log_wizard,precious_metals_suite.group_user,1,1,1,1
+access_comparison_wizard_pm_user,comparison.report.wizard.pm.user,model_comparison_report_wizard,precious_metals_suite.group_user,1,1,1,1
+access_pm_unlock_reason_wizard_pm_user,pm.unlock.reason.wizard.pm.user,model_pm_unlock_reason_wizard,precious_metals_suite.group_user,1,1,1,1
+access_precious_metal_report_config_manager,precious.metal.report.config.manager,model_precious_metal_report_config,precious_metals_suite.group_manager,1,1,1,1
+access_precious_metal_report_config_user,precious.metal.report.config.user,model_precious_metal_report_config,precious_metals_suite.group_user,1,0,0,0
+access_sale_multi_add_products_wizard,sale.multi.add.products.wizard,model_sale_multi_add_products_wizard,base.group_user,1,1,1,1
+access_sale_multi_add_products_wizard_line,sale.multi.add.products.wizard.line,model_sale_multi_add_products_wizard_line,base.group_user,1,1,1,1
